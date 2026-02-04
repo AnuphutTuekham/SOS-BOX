@@ -4,11 +4,12 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
+		"build": "echo no-build",
+		"vercel-build": "npm run build",
 		"dev": "node dev-server.mjs",
 		"start": "node dev-server.mjs"
 	},
 	"devDependencies": {
-		"@cloudflare/workers-types": "^4.20260203.0",
-		"http-server": "^14.1.1"
+		"@cloudflare/workers-types": "^4.20260203.0"
 	}
 }

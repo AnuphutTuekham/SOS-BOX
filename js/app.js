@@ -29,15 +29,6 @@
 		return `${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`;
 	}
 
-	function purgeMockStorage() {
-		try {
-			localStorage.removeItem("sosbox_boxes_v1");
-			localStorage.removeItem("sosbox_markers_v1");
-		} catch {
-			// ignore
-		}
-	}
-
 	function normalizeBoxes(boxes) {
 		return boxes
 			.filter((b) => b && typeof b.lat === "number" && typeof b.lng === "number")
@@ -194,7 +185,7 @@
 
 		document.addEventListener("DOMContentLoaded", () => {
 			void (async () => {
-				purgeMockStorage();
+
 		const layers = {
 			osm: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 				maxZoom: 20,

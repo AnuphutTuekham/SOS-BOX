@@ -1,0 +1,12 @@
+{
+	"version": 2,
+	"redirects": [
+		{ "source": "/", "destination": "/main.html", "permanent": false }
+	],
+	"rewrites": [
+		{
+			"source": "/api/:path*",
+			"destination": "https://backend-cw.anuphut.workers.dev/api/:path*"
+		}
+	]
+}

@@ -19,15 +19,6 @@
 		}, timeoutMs);
 	}
 
-	function purgeMockStorage() {
-		try {
-			localStorage.removeItem("sosbox_boxes_v1");
-			localStorage.removeItem("sosbox_markers_v1");
-		} catch {
-			// ignore
-		}
-	}
-
 	function clampInt(v, min, max) {
 		const n = Math.round(Number(v));
 		if (!Number.isFinite(n)) return min;
@@ -149,7 +140,6 @@
 
 	document.addEventListener("DOMContentLoaded", () => {
 		void (async () => {
-			purgeMockStorage();
 		const url = new URL(window.location.href);
 		const id = url.searchParams.get("id") || "";
 		const ll = url.searchParams.get("ll");

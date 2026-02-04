@@ -75,30 +75,85 @@ async function ensureSchema(db: D1Database) {
 
 type TraccarPayload = Record<string, unknown> | Array<Record<string, unknown>>;
 
-function readField(obj: Record<string, unknown>, keys: string[]) {
-	for (const k of keys) {
-		if (obj[k] !== undefined && obj[k] !== null) return obj[k];
+function parseTimestampMs(value: unknown): number {
+	if (typeof value === "number" && Number.isFinite(value)) return value;
+	if (typeof value === "string" && value.trim()) {
+		const ms = Date.parse(value);
+		if (Number.isFinite(ms)) return ms;
+		const n = Number(value);
+		if (Number.isFinite(n)) return n;
 	}
-	return undefined;
+	return Date.now();
 }
 
-function normalizeTraccarItem(item: Record<string, unknown>) {
-	const lat = Number(readField(item, ["lat", "latitude"]));
-	const lon = Number(readField(item, ["lon", "lng", "longitude"]));
+function normalizeTraccarItem(input: unknown) {
+	if (!input || typeof input !== "object") return null;
+	let item: any = input;
+
+	// Some Traccar client payloads wrap useful fields under a "location" object.
+	if (item.location && typeof item.location === "object") {
+		const loc: any = item.location;
+		let lat: number | undefined;
+		let lon: number | undefined;
+		let battery: number | undefined;
+
+		if (typeof loc._ === "string") {
+			const qs = new URLSearchParams(loc._);
+			lat = Number(qs.get("lat"));
+			lon = Number(qs.get("lon"));
+			const battStr = qs.get("batt") ?? qs.get("battery") ?? qs.get("batteryLevel");
+			battery = battStr ? Number(battStr) : undefined;
+		}
+
+		if (!Number.isFinite(lat)) lat = Number(loc.lat ?? loc.latitude);
+		if (!Number.isFinite(lon)) lon = Number(loc.lon ?? loc.lng ?? loc.longitude);
+		if (!Number.isFinite(battery as any)) {
+			const batt = loc.battery;
+			battery = typeof batt === "object" ? Number(batt?.level ?? batt?.value) : Number(batt);
+		}
+
+		item = {
+			...item,
+			lat,
+			lon,
+			battery,
+			timestamp: loc.timestamp ?? item.timestamp,
+		};
+	}
+
+	const lat = Number(item.lat ?? item.latitude);
+	const lon = Number(item.lon ?? item.lng ?? item.longitude);
 	if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
-	const deviceId = String(readField(item, ["deviceId", "device_id", "id", "uniqueId", "imei"]) ?? "");
-	const name = String(readField(item, ["deviceName", "name"]) ?? deviceId ?? "SOS BOX");
-	const batt = clampInt(readField(item, ["battery", "batt", "batteryLevel", "batteryPercent"]) ?? 0, 0, 150);
-	const lastSeen = Number(readField(item, ["time", "timestamp", "lastSeen", "lastseen", "deviceTime"]) ?? Date.now());
-	const status = String(readField(item, ["status", "motion", "online"]) ?? "online");
+
+	const deviceId = String(
+		item.device_id ?? item.deviceId ?? item.device?.id ?? item.id ?? item.deviceName ?? ""
+	);
+	const name = String(item.name ?? item.deviceName ?? item.device?.name ?? deviceId ?? "SOS BOX");
+
+	// Battery can be 0-1 or 0-100 depending on source.
+	const battRaw = Number(
+		item.battery ??
+			item.batt ??
+			item.batteryLevel ??
+			item.attributes?.batteryLevel ??
+			item.attributes?.battery ??
+			0
+	);
+	const battPercent = battRaw <= 1 ? battRaw * 100 : battRaw;
+	const batt = clampInt(battPercent, 0, 150);
+
+	const lastSeen = parseTimestampMs(
+		item.timestamp ?? item.fixTime ?? item.deviceTime ?? item.serverTime ?? item.time
+	);
+
 	return {
 		deviceId,
 		name,
 		lat,
 		lon,
+		status: String(item.status ?? "online"),
 		batt,
-		status,
-		lastSeen: Number.isFinite(lastSeen) ? lastSeen : Date.now(),
+		lastSeen,
 	};
 }
 
@@ -151,8 +206,6 @@ export default {
 					}
 				}
 
-				console.log("[Traccar POST]", { contentType, payload });
-
 				// Extract Traccar fields - handle nested location object
 				let item = typeof payload === "object" && payload !== null ? payload : {};
 				
@@ -171,7 +224,7 @@ export default {
 						lon = Number(qs.get("lon"));
 						const battStr = qs.get("batt") ?? qs.get("battery");
 						battery = battStr ? Number(battStr) : undefined;
-						console.log("[QS Parsed]", { lat, lon, battery, rawQs: loc._ });
+
 					}
 					
 					// Fallback to direct properties
@@ -193,15 +246,12 @@ export default {
 
 				const lat = Number(item.lat ?? item.latitude);
 				const lon = Number(item.lon ?? item.lng ?? item.longitude);
-				console.log("[Traccar Fields]", { lat, lon, device_id: item.device_id, battery: item.battery, timestamp: item.timestamp });
-
 				if (Number.isFinite(lat) && Number.isFinite(lon)) {
 					const deviceId = String(item.device_id ?? item.id ?? item.deviceId ?? item.deviceName ?? "");
 					// Battery value from Traccar is 0-1 (decimal), convert to percentage
 					const battRaw = Number(item.battery ?? item.batt ?? 0);
 					const battPercent = battRaw <= 1 ? battRaw * 100 : battRaw;
 					const batt = clampInt(battPercent, 0, 150);
-					console.log("[Battery Debug]", { battRaw, battPercent, batt });
 					const lastSeen = item.timestamp ? new Date(item.timestamp).getTime() : Date.now();
 					const name = String(item.name ?? item.deviceName ?? deviceId ?? "SOS BOX");
 					const createdAtIso = new Date(lastSeen).toISOString();
