@@ -1,0 +1,1 @@
+CREATE TABLE `sosbox` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT, `lat` REAL, `lon` REAL, `status` TEXT, `batt` INTEGER, `created_at` TEXT)

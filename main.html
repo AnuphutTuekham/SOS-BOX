@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>SOS Box — Interactive Map</title>
+		<title>SOSBOX — หน้าเว็บหลัก</title>
 		<link rel="icon" href="favicon.svg" type="image/svg+xml" />
 
 		<!-- Leaflet (OpenStreetMap) -->
@@ -29,6 +29,7 @@
 			src="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.js"
 			defer
 		></script>
+		<script src="config.js"></script>
 		<script src="js/app.js" defer></script>
 	</head>
 	<body>
@@ -37,14 +38,27 @@
 				<div class="brand">
 					<div class="dot" aria-hidden="true"></div>
 					<div>
-						<h1>SOS BOX — WiFi Box Map</h1>
+						<h1>SOSBOX</h1>
+						<div class="sub">หน้าเว็บหลักสำหรับติดตามสถานะและตำแหน่ง SOS BOX</div>
 					</div>
 				</div>
 
 				<div class="card">
+					<label>ภาพรวมระบบ</label>
+					<p class="sub" style="margin-top: 6px">
+						ดูตำแหน่งทั้งหมดแบบเรียลไทม์ จัดการสถานะ และอัปเดตข้อมูลกล่องได้จากหน้าเดียว
+					</p>
 					<div style="height: 10px"></div>
 					<div class="btns">
-						<button class="primary" id="btnLocate" type="button">หาตำแหน่งฉัน</button>
+						<button class="primary" id="btnLocate" type="button">เริ่มติดตามตำแหน่ง</button>
+					</div>
+					<p class="sub" style="margin-top: 8px">
+						ใช้เมนู “เพิ่ม/แก้ไข SOS BOX” ด้านล่างเพื่อจัดการข้อมูล
+					</p>
+				</div>
+
+				<div class="card">
+					<div class="btns">
 						<button id="btnCopyCenter" type="button">คัดลอกพิกัดกึ่งกลาง</button>
 						<button id="btnShare" type="button">แชร์ลิงก์ตำแหน่ง</button>
 					</div>
@@ -94,7 +108,7 @@
 				</div>
 
 				<div class="card">
-					<label>จัดการ SOS BOX</label>
+					<label>การจัดการ</label>
 					<div class="btns">
 						<button class="primary" id="btnOpenEditor" type="button">เพิ่ม/แก้ไข SOS BOX</button>
 						<button class="danger" id="btnClearAll" type="button">ลบทั้งหมด</button>

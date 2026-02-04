@@ -8,6 +8,7 @@
 		"start": "node dev-server.mjs"
 	},
 	"devDependencies": {
+		"@cloudflare/workers-types": "^4.20260203.0",
 		"http-server": "^14.1.1"
 	}
 }

@@ -7,6 +7,8 @@
 
 	const $ = (id) => document.getElementById(id);
 	const toastEl = $("toast");
+	const API_BASE = String(window.API_BASE || "").trim();
+	const apiUrl = (path) => (API_BASE ? new URL(path, API_BASE).toString() : path);
 
 	function showToast(message, timeoutMs = 2400) {
 		toastEl.textContent = message;
@@ -39,7 +41,7 @@
 	}
 
 	async function apiGetBoxes() {
-		const r = await fetch("/api/boxes", { cache: "no-store" });
+		const r = await fetch(apiUrl("/api/boxes"), { cache: "no-store" });
 		if (!r.ok) throw new Error(`GET /api/boxes failed: ${r.status}`);
 		const data = await r.json();
 		return normalizeBoxes(Array.isArray(data) ? data : []);
@@ -69,7 +71,7 @@
 	}
 
 	async function apiUpsertBox(box) {
-		const r = await fetch("/api/boxes/upsert", {
+		const r = await fetch(apiUrl("/api/boxes/upsert"), {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify(box),
@@ -78,7 +80,9 @@
 	}
 
 	async function apiDeleteBox(id) {
-		const r = await fetch(`/api/boxes/${encodeURIComponent(String(id))}`, { method: "DELETE" });
+		const r = await fetch(apiUrl(`/api/boxes/${encodeURIComponent(String(id))}`), {
+			method: "DELETE",
+		});
 		if (!r.ok) throw new Error(`DELETE /api/boxes/:id failed: ${r.status}`);
 	}
 
