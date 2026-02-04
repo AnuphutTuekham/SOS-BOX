@@ -4,7 +4,7 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"build": "echo no-build",
+		"build": "node scripts/vercel-build.mjs",
 		"vercel-build": "npm run build",
 		"dev": "node dev-server.mjs",
 		"start": "node dev-server.mjs"

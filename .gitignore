@@ -23,6 +23,7 @@ coverage/
 /dist
 /build
 /out
+public/
 
 # Cache
 .cache/
