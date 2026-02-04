@@ -37,25 +37,11 @@
 				<div class="brand">
 					<div class="dot" aria-hidden="true"></div>
 					<div>
-						<h1>SOS Box — Interactive Map</h1>
-						<p class="sub">
-							ค้นหาสถานที่ • ปักหมุด • แชร์พิกัด • บันทึกหมุดในเครื่อง
-							<span class="kbd">คลิกบนแผนที่</span> เพื่อเพิ่มหมุด
-						</p>
+						<h1>SOS BOX — WiFi Box Map</h1>
 					</div>
 				</div>
 
 				<div class="card">
-					<div class="row single">
-						<div>
-							<label>โหมดแผนที่</label>
-							<select id="basemap">
-								<option value="osm" selected>OpenStreetMap</option>
-								<option value="terrain">Terrain (Stamen)</option>
-								<option value="dark">Dark (Carto)</option>
-							</select>
-						</div>
-					</div>
 					<div style="height: 10px"></div>
 					<div class="btns">
 						<button class="primary" id="btnLocate" type="button">หาตำแหน่งฉัน</button>
@@ -75,45 +61,49 @@
 							<div class="v" id="zoom">-</div>
 						</div>
 						<div class="stat">
-							<div class="k">จำนวนหมุด</div>
-							<div class="v" id="markerCount">0</div>
+							<div class="k">จำนวน SOS BOX</div>
+							<div class="v" id="boxCount">0</div>
 						</div>
 						<div class="stat">
-							<div class="k">ระยะรวม (ระหว่างหมุดที่เพิ่ม)</div>
-							<div class="v" id="totalDistance">0 m</div>
+							<div class="k">สถานะ (ออนไลน์/ออฟไลน์/แบตต่ำ)</div>
+							<div class="v" id="statusCounts">0 / 0 / 0</div>
 						</div>
 					</div>
 				</div>
 
 				<div class="card">
-					<label>เพิ่มหมุดด้วยตัวเอง</label>
+					<label>ตัวกรอง</label>
 					<div class="row">
 						<div>
-							<input id="lat" type="number" step="0.000001" placeholder="Latitude" />
+							<label>แสดงสถานะ</label>
+							<select id="statusFilter">
+								<option value="all" selected>ทั้งหมด</option>
+								<option value="online">ออนไลน์</option>
+								<option value="offline">ออฟไลน์</option>
+								<option value="low">แบตต่ำ</option>
+							</select>
 						</div>
 						<div>
-							<input id="lng" type="number" step="0.000001" placeholder="Longitude" />
+							<label>ถือว่าออฟไลน์ถ้าเกิน (นาที)</label>
+							<input id="offlineAfterMin" type="number" min="1" step="1" value="30" />
 						</div>
 					</div>
-					<div style="height: 10px"></div>
-					<input id="title" type="text" placeholder="ชื่อหมุด (เช่น จุดนัดพบ)" />
-					<div style="height: 10px"></div>
-					<textarea id="note" placeholder="รายละเอียดเพิ่มเติม (ไม่บังคับ)"></textarea>
-					<div style="height: 10px"></div>
+					<p class="sub" style="margin-top: 10px">
+						หมายเหตุ: ระบบจะ “ประเมินสถานะ” จากเวลา last seen + แบตเตอรี่ (แก้ได้ด้วยการอัปเดต last seen)
+					</p>
+				</div>
+
+				<div class="card">
+					<label>จัดการ SOS BOX</label>
 					<div class="btns">
-						<button class="primary" id="btnAdd" type="button">เพิ่มหมุด</button>
-						<button id="btnClearLine" type="button">ล้างเส้นระยะ</button>
-						<button class="danger" id="btnClearAll" type="button">ลบหมุดทั้งหมด</button>
+						<button class="primary" id="btnOpenEditor" type="button">เพิ่ม/แก้ไข SOS BOX</button>
+						<button class="danger" id="btnClearAll" type="button">ลบทั้งหมด</button>
 					</div>
 				</div>
 
 				<div class="card">
-					<label>รายการหมุด</label>
-					<div class="list" id="markerList"></div>
-					<p class="sub" style="margin-top: 10px">
-						ทิป: กด <span class="kbd">Shift</span> ค้างแล้วคลิกบนแผนที่เพื่อเพิ่มหมุดแบบ “จุดถัดไป”
-						สำหรับคำนวณระยะ
-					</p>
+					<label>รายการ SOS BOX</label>
+					<div class="list" id="boxList"></div>
 				</div>
 			</aside>
 

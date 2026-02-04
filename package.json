@@ -4,8 +4,8 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "http-server -c-1 -p 5173 -o /main.html .",
-		"start": "http-server -c-1 -p 5173 -o /main.html ."
+		"dev": "node dev-server.mjs",
+		"start": "node dev-server.mjs"
 	},
 	"devDependencies": {
 		"http-server": "^14.1.1"
