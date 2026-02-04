@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="th">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>SOS Box — Interactive Map</title>
+		<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+
+		<!-- Leaflet (OpenStreetMap) -->
+		<link
+			rel="stylesheet"
+			href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+			integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+			crossorigin=""
+		/>
+		<script
+			src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+			integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+			crossorigin=""
+		></script>
+
+		<!-- Geocoder control (Nominatim) -->
+		<link
+			rel="stylesheet"
+			href="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.css"
+		/>
+		<link rel="stylesheet" href="css/styles.css" />
+		<script
+			src="https://unpkg.com/leaflet-control-geocoder@2.4.0/dist/Control.Geocoder.js"
+			defer
+		></script>
+		<script src="js/app.js" defer></script>
+	</head>
+	<body>
+		<div class="app">
+			<aside class="sidebar">
+				<div class="brand">
+					<div class="dot" aria-hidden="true"></div>
+					<div>
+						<h1>SOS Box — Interactive Map</h1>
+						<p class="sub">
+							ค้นหาสถานที่ • ปักหมุด • แชร์พิกัด • บันทึกหมุดในเครื่อง
+							<span class="kbd">คลิกบนแผนที่</span> เพื่อเพิ่มหมุด
+						</p>
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="row single">
+						<div>
+							<label>โหมดแผนที่</label>
+							<select id="basemap">
+								<option value="osm" selected>OpenStreetMap</option>
+								<option value="terrain">Terrain (Stamen)</option>
+								<option value="dark">Dark (Carto)</option>
+							</select>
+						</div>
+					</div>
+					<div style="height: 10px"></div>
+					<div class="btns">
+						<button class="primary" id="btnLocate" type="button">หาตำแหน่งฉัน</button>
+						<button id="btnCopyCenter" type="button">คัดลอกพิกัดกึ่งกลาง</button>
+						<button id="btnShare" type="button">แชร์ลิงก์ตำแหน่ง</button>
+					</div>
+				</div>
+
+				<div class="card">
+					<div class="stats">
+						<div class="stat">
+							<div class="k">พิกัดกึ่งกลาง (lat, lng)</div>
+							<div class="v" id="centerLatLng">-</div>
+						</div>
+						<div class="stat">
+							<div class="k">ซูม</div>
+							<div class="v" id="zoom">-</div>
+						</div>
+						<div class="stat">
+							<div class="k">จำนวนหมุด</div>
+							<div class="v" id="markerCount">0</div>
+						</div>
+						<div class="stat">
+							<div class="k">ระยะรวม (ระหว่างหมุดที่เพิ่ม)</div>
+							<div class="v" id="totalDistance">0 m</div>
+						</div>
+					</div>
+				</div>
+
+				<div class="card">
+					<label>เพิ่มหมุดด้วยตัวเอง</label>
+					<div class="row">
+						<div>
+							<input id="lat" type="number" step="0.000001" placeholder="Latitude" />
+						</div>
+						<div>
+							<input id="lng" type="number" step="0.000001" placeholder="Longitude" />
+						</div>
+					</div>
+					<div style="height: 10px"></div>
+					<input id="title" type="text" placeholder="ชื่อหมุด (เช่น จุดนัดพบ)" />
+					<div style="height: 10px"></div>
+					<textarea id="note" placeholder="รายละเอียดเพิ่มเติม (ไม่บังคับ)"></textarea>
+					<div style="height: 10px"></div>
+					<div class="btns">
+						<button class="primary" id="btnAdd" type="button">เพิ่มหมุด</button>
+						<button id="btnClearLine" type="button">ล้างเส้นระยะ</button>
+						<button class="danger" id="btnClearAll" type="button">ลบหมุดทั้งหมด</button>
+					</div>
+				</div>
+
+				<div class="card">
+					<label>รายการหมุด</label>
+					<div class="list" id="markerList"></div>
+					<p class="sub" style="margin-top: 10px">
+						ทิป: กด <span class="kbd">Shift</span> ค้างแล้วคลิกบนแผนที่เพื่อเพิ่มหมุดแบบ “จุดถัดไป”
+						สำหรับคำนวณระยะ
+					</p>
+				</div>
+			</aside>
+
+			<main class="mapWrap">
+				<div id="map" role="application" aria-label="Interactive map"></div>
+				<div class="toast" id="toast"></div>
+			</main>
+		</div>
+
+
+	</body>
+</html>
