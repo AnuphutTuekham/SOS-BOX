@@ -6,6 +6,7 @@
 	"scripts": {
 		"build": "node scripts/vercel-build.mjs",
 		"vercel-build": "npm run build",
+		"test": "node scripts/verify-student-ids.mjs",
 		"dev": "node dev-server.mjs",
 		"start": "node dev-server.mjs"
 	},
