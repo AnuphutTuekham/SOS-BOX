@@ -1,5 +1,5 @@
 {
-	"name": "sos-box-worker",
+	"name": "sos-box",
 	"main": "src/index.ts",
 	"compatibility_date": "2024-01-01",
 	"d1_databases": [
