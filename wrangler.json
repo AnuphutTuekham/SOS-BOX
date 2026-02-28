@@ -6,12 +6,7 @@
 		{
 			"binding": "sos_boxbd",
 			"database_name": "sos_boxbd",
-			"database_id": "2b5f147c-734e-492c-8697-522e13c63d30"
-		},
-		{
-			"binding": "sos_boxbd",
-			"database_name": "sos_boxbd",
-			"database_id": "dd44bb02-4745-4670-8782-6155a7a919dc"
+				"database_id": "2b5f147c-734e-492c-8697-522e13c63d30"
 		}
 	]
 }
