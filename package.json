@@ -8,7 +8,8 @@
 		"vercel-build": "npm run build",
 		"test": "node scripts/verify-student-ids.mjs",
 		"dev": "node dev-server.mjs",
-		"start": "node dev-server.mjs"
+		"start": "node dev-server.mjs",
+		"d1:migrate": "wrangler d1 migrations apply sos_boxbd"
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "^4.20260203.0"

@@ -62,7 +62,7 @@ async function ensureSchema(db: D1Database) {
 	// Keep it simple: create table if missing
 	await db
 		.prepare(
-			"CREATE TABLE IF NOT EXISTS sosbox (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, lat REAL, lon REAL, status TEXT, batt INTEGER, created_at TEXT, device_id TEXT)"
+			"CREATE TABLE IF NOT EXISTS sosbox (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, lat REAL, lon REAL, status TEXT, batt INTEGER, wifi_count INTEGER DEFAULT 0, created_at TEXT, device_id TEXT)"
 		)
 		.run();
 
@@ -70,6 +70,9 @@ async function ensureSchema(db: D1Database) {
 	const names = new Set((columns.results ?? []).map((c: any) => String(c.name)));
 	if (!names.has("device_id")) {
 		await db.prepare("ALTER TABLE sosbox ADD COLUMN device_id TEXT").run();
+	}
+	if (!names.has("wifi_count")) {
+		await db.prepare("ALTER TABLE sosbox ADD COLUMN wifi_count INTEGER DEFAULT 0").run();
 	}
 }
 
@@ -310,7 +313,7 @@ export default {
 				await ensureSchema(env.sos_boxbd);
 				const r = await env.sos_boxbd
 					.prepare(
-						"SELECT id, name, lat, lon, status, batt, created_at FROM sosbox ORDER BY id DESC"
+						"SELECT id, name, lat, lon, status, batt, wifi_count, created_at FROM sosbox ORDER BY id DESC"
 					)
 					.all();
 				const rows = (r.results ?? []).map((x: any) => ({
@@ -440,6 +443,35 @@ export default {
 				}
 
 				return json({ ok: true, upserted: normalized.length });
+			} catch (e: any) {
+				return json({ error: e?.message || String(e) }, { status: 500 });
+			}
+		}
+
+		// wifi_count read/write endpoints: GET and POST /api/boxes/:id/wifi_count
+		const wifiMatch = url.pathname.match(/^\/api\/boxes\/(\d+)\/wifi_count$/);
+		if (wifiMatch) {
+			const id = clampInt(wifiMatch[1], 0, 2_000_000_000);
+			try {
+				await ensureSchema(env.sos_boxbd);
+				if (request.method === "GET") {
+					const r = await env.sos_boxbd
+						.prepare("SELECT wifi_count FROM sosbox WHERE id = ? LIMIT 1")
+						.bind(id)
+						.first();
+					const count = Number(r?.wifi_count ?? 0);
+					return json({ wifi_count: count });
+				}
+				if (request.method === "POST") {
+					const body = await request.json().catch(() => null);
+					const val = clampInt(body?.wifi_count ?? body?.wifiCount ?? body?.count ?? 0, 0, 100000);
+					await env.sos_boxbd
+						.prepare("UPDATE sosbox SET wifi_count = ? WHERE id = ?")
+						.bind(val, id)
+						.run();
+					return json({ ok: true, wifi_count: val });
+				}
+				return json({ error: "method not allowed" }, { status: 405 });
 			} catch (e: any) {
 				return json({ error: e?.message || String(e) }, { status: 500 });
 			}
