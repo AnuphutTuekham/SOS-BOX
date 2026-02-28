@@ -1,12 +1,11 @@
 {
-	"name": "sosbox-cw",
+	"name": "sos-box-worker",
 	"main": "src/index.ts",
-	"compatibility_date": "2025-12-19",
+	"compatibility_date": "2024-01-01",
 	"d1_databases": [
 		{
 			"binding": "sos_boxbd",
-			"database_name": "sos_boxbd",
-				"database_id": "2b5f147c-734e-492c-8697-522e13c63d30"
+			"database_id": "ae94aaf9-d087-48af-b41a-4d3c989c6c21"
 		}
 	]
 }
