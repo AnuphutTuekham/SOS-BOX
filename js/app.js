@@ -37,6 +37,7 @@
 				const powerbankMah = clampInt(b.powerbankMah ?? DEFAULT_POWERBANK_MAH, 0, 1000000);
 				const loadW = clampNumber(b.loadW ?? DEFAULT_LOAD_W, 0.1, 1000);
 				const createdAt = Number(b.createdAt || Date.now());
+				const wifiCount = clampInt(b.wifiCount ?? b.wifi_count ?? 0, 0, 100000);
 				return {
 					id: String(b.id || crypto.randomUUID()),
 					lat: b.lat,
@@ -44,6 +45,7 @@
 					name: String(b.name || `SOS BOX #${idx + 1}`),
 					note: String(b.note || ""),
 					batteryPercent,
+					wifiCount,
 					powerbankMah,
 					loadW,
 					lastSeen: Number(b.lastSeen || createdAt),
@@ -160,6 +162,9 @@
 				<div style="margin-top:6px; font-size: 12px; opacity: 0.85; display:flex; align-items:center; gap:8px;">
 					<img src="${iconSrc}" alt="battery" width="16" height="16" />
 					<span>แบตเตอรี่: <b>${battery}%</b> • พาวเวอร์แบงก์: ${powerbankMah} mAh • ใช้ไฟ: ${loadW} W</span>
+				</div>
+				<div style="margin-top:6px; font-size: 12px; opacity: 0.85; display:flex; align-items:center; gap:8px;">
+					<span>จำนวนเชื่อมต่อ WiFi: <b>${box.wifiCount || 0}</b></span>
 				</div>
 				<div style="margin-top:6px; font-size: 12px; opacity: 0.85">คาดว่าเหลือเวลา ~ <b>${remainingHours.toFixed(1)} ชม.</b> (เต็ม ~${fullHours.toFixed(1)} ชม.)</div>
 				<div style="margin-top:6px; font-size: 12px; opacity: 0.85">Last seen: ${escapeHtml(lastSeenText)}</div>

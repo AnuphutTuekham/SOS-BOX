@@ -141,6 +141,19 @@
 	document.addEventListener("DOMContentLoaded", () => {
 		void (async () => {
 		const url = new URL(window.location.href);
+		// dynamically add wifiCount input under powerbank row
+		const pwInput = document.getElementById("powerbankMah");
+		if (pwInput) {
+			const pwDiv = pwInput.closest("div");
+			if (pwDiv && pwDiv.parentElement) {
+				const wifiDiv = document.createElement("div");
+				wifiDiv.innerHTML = `
+					<label>จำนวนเชื่อมต่อ WiFi</label>
+					<input id="wifiCount" type="number" min="0" step="1" value="0" />
+				`;
+				pwDiv.parentElement.appendChild(wifiDiv);
+			}
+		}
 		const id = url.searchParams.get("id") || "";
 		const ll = url.searchParams.get("ll");
 		const z = Number(url.searchParams.get("z") || "16");
@@ -204,6 +217,7 @@
 			$("note").value = "";
 			$("battery").value = String(100);
 			$("powerbankMah").value = String(DEFAULT_POWERBANK_MAH);
+			const wifiEl = $("wifiCount"); if (wifiEl) wifiEl.value = "0";
 			$("loadW").value = String(DEFAULT_LOAD_W);
 			$("lastSeen").value = "-";
 			$("modeText").textContent = "โหมด: เพิ่มรายการใหม่";
@@ -218,6 +232,7 @@
 			$("note").value = box.note || "";
 			$("battery").value = String(clampInt(box.batteryPercent ?? 100, 0, 150));
 			$("powerbankMah").value = String(clampInt(box.powerbankMah ?? DEFAULT_POWERBANK_MAH, 0, 1000000));
+			const wifiEl = $("wifiCount"); if (wifiEl) wifiEl.value = String(box.wifiCount ?? 0);
 			$("loadW").value = String(clampNumber(box.loadW ?? DEFAULT_LOAD_W, 0.1, 1000));
 			$("lastSeen").value = box.lastSeen ? new Date(box.lastSeen).toLocaleString() : "-";
 			$("modeText").textContent = `โหมด: แก้ไข (${box.name || "SOS BOX"})`;
@@ -242,6 +257,7 @@
 			const note = String($("note").value || "").trim();
 			const batteryPercent = clampInt($("battery").value, 0, 150);
 			const powerbankMah = clampInt($("powerbankMah").value, 0, 1000000);
+			const wifiCount = clampInt($("wifiCount")?.value ?? 0, 0, 100000);
 			const loadW = clampNumber($("loadW").value, 0.1, 1000);
 
 			const now = Date.now();
@@ -280,6 +296,7 @@
 				note,
 				batteryPercent,
 				powerbankMah,
+				wifiCount,
 				loadW,
 				lastSeen: now,
 				createdAt: now,

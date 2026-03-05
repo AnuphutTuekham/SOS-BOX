@@ -38,6 +38,8 @@ type IncomingBox = {
 	batteryPercent?: number;
 	lastSeen?: number;
 	createdAt?: number;
+	wifi_count?: number;
+	wifiCount?: number;
 };
 
 function normalizeIncomingBox(input: unknown) {
@@ -53,6 +55,7 @@ function normalizeIncomingBox(input: unknown) {
 		lon,
 		status: String(b.status ?? "online"),
 		batt: clampInt(b.batt ?? b.batteryPercent ?? 0, 0, 150),
+		wifi_count: clampInt(b.wifi_count ?? b.wifiCount ?? 0, 0, 100000),
 		createdAt: Number(b.createdAt ?? Date.now()),
 		lastSeen: Number(b.lastSeen ?? Date.now()),
 	};
@@ -144,6 +147,7 @@ function normalizeTraccarItem(input: unknown) {
 	);
 	const battPercent = battRaw <= 1 ? battRaw * 100 : battRaw;
 	const batt = clampInt(battPercent, 0, 150);
+	const wifiCount = clampInt(Number(item.wifi_count ?? item.wifiCount ?? 0), 0, 100000);
 
 	const lastSeen = parseTimestampMs(
 		item.timestamp ?? item.fixTime ?? item.deviceTime ?? item.serverTime ?? item.time
@@ -156,6 +160,7 @@ function normalizeTraccarItem(input: unknown) {
 		lon,
 		status: String(item.status ?? "online"),
 		batt,
+		wifi_count: wifiCount,
 		lastSeen,
 	};
 }
@@ -255,6 +260,7 @@ export default {
 					const battRaw = Number(item.battery ?? item.batt ?? 0);
 					const battPercent = battRaw <= 1 ? battRaw * 100 : battRaw;
 					const batt = clampInt(battPercent, 0, 150);
+					const wifiCount = clampInt(Number(item.wifi_count ?? item.wifiCount ?? 0), 0, 100000);
 					const lastSeen = item.timestamp ? new Date(item.timestamp).getTime() : Date.now();
 					const name = String(item.name ?? item.deviceName ?? deviceId ?? "SOS BOX");
 					const createdAtIso = new Date(lastSeen).toISOString();
@@ -377,23 +383,16 @@ export default {
 					if (Number.isFinite(idNum) && idNum > 0) {
 						await env.sos_boxbd
 							.prepare(
-								"UPDATE sosbox SET name=?, lat=?, lon=?, status=?, batt=?, created_at=? WHERE id=?"
-							)
-							.bind(b.name, b.lat, b.lon, b.status, b.batt, createdAtIso, idNum)
-							.run();
-					} else {
-						await env.sos_boxbd
-							.prepare(
-								"INSERT INTO sosbox (name, lat, lon, status, batt, created_at) VALUES (?,?,?,?,?,?)"
-							)
-							.bind(b.name, b.lat, b.lon, b.status, b.batt, createdAtIso)
-							.run();
-					}
-				}
-
-				return json({ ok: true, upserted: normalized.length });
-			} catch (e: any) {
-				return json({ error: e?.message || String(e) }, { status: 500 });
+							"UPDATE sosbox SET name=?, lat=?, lon=?, status=?, batt=?, wifi_count=?, created_at=? WHERE id=?"
+						)
+						.bind(b.name, b.lat, b.lon, b.status, b.batt, b.wifi_count ?? 0, createdAtIso, idNum)
+						.run();
+				} else {
+					await env.sos_boxbd
+						.prepare(
+							"INSERT INTO sosbox (name, lat, lon, status, batt, wifi_count, created_at) VALUES (?,?,?,?,?,?,?)"
+						)
+						.bind(b.name, b.lat, b.lon, b.status, b.batt, b.wifi_count ?? 0, createdAtIso)
 			}
 		}
 
@@ -426,29 +425,19 @@ export default {
 						if (existing?.id) {
 							await env.sos_boxbd
 								.prepare(
-									"UPDATE sosbox SET name=?, lat=?, lon=?, status=?, batt=?, created_at=? WHERE id=?"
-								)
-								.bind(b.name, b.lat, b.lon, b.status, b.batt, createdAtIso, existing.id)
-								.run();
-							continue;
-						}
+								"UPDATE sosbox SET name=?, lat=?, lon=?, status=?, batt=?, wifi_count=?, created_at=? WHERE id=?"
+							)
+							.bind(b.name, b.lat, b.lon, b.status, b.batt, b.wifi_count ?? 0, createdAtIso, existing.id)
+							.run();
+						continue;
 					}
-
-					await env.sos_boxbd
-						.prepare(
-							"INSERT INTO sosbox (name, lat, lon, status, batt, created_at, device_id) VALUES (?,?,?,?,?,?,?)"
-						)
-						.bind(b.name, b.lat, b.lon, b.status, b.batt, createdAtIso, b.deviceId)
-						.run();
 				}
 
-				return json({ ok: true, upserted: normalized.length });
-			} catch (e: any) {
-				return json({ error: e?.message || String(e) }, { status: 500 });
-			}
-		}
-
-		// wifi_count read/write endpoints: GET and POST /api/boxes/:id/wifi_count
+				await env.sos_boxbd
+					.prepare(
+						"INSERT INTO sosbox (name, lat, lon, status, batt, wifi_count, created_at, device_id) VALUES (?,?,?,?,?,?,?,?)"
+					)
+					.bind(b.name, b.lat, b.lon, b.status, b.batt, b.wifi_count ?? 0, createdAtIso, b.deviceId)
 		const wifiMatch = url.pathname.match(/^\/api\/boxes\/(\d+)\/wifi_count$/);
 		if (wifiMatch) {
 			const id = clampInt(wifiMatch[1], 0, 2_000_000_000);

@@ -64,6 +64,41 @@ curl -X POST http://127.0.0.1:5175/api/boxes/upsert \
 ### DELETE `/api/boxes/:id`
 ลบข้อมูลเฉพาะกล่อง
 
+## Cloudflare D1 database
+
+This project deploys a Worker to Cloudflare at:
+
+```
+https://sos-box-worker.anuphut.workers.dev
+```
+
+The worker uses a D1 database binding named `sos_boxbd` (see `wrangler.json`). The `sosbox` table
+contains the box records along with a `wifi_count` column.
+
+You can run SQL against the remote database with Wrangler:
+
+```bash
+# make sure you're logged in
+wrangler login
+
+# show tables
+wrangler d1 execute sos_boxbd --remote --sql "SELECT name FROM sqlite_master WHERE type='table';"
+
+# sample query
+wrangler d1 execute sos_boxbd --remote --sql "SELECT id,name,lat,lon,wifi_count FROM sosbox LIMIT 5;"
+```
+
+Or simply hit the HTTP endpoints to view/update data:
+
+```bash
+curl https://sos-box-worker.anuphut.workers.dev/api/boxes
+curl https://sos-box-worker.anuphut.workers.dev/api/boxes/1/wifi_count
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"wifi_count":12}' \
+  https://sos-box-worker.anuphut.workers.dev/api/boxes/1/wifi_count
+```
+
+
 ## Optional: API Key
 ถ้าตั้งค่า env `SOSBOX_API_KEY` เซิร์ฟเวอร์จะบังคับให้ส่ง header `x-api-key` ทุก request ของ `/api/*`
 

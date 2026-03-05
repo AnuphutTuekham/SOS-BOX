@@ -140,6 +140,7 @@ function normalizeIncomingBox(input) {
 		note: String(input.note || ""),
 		batteryPercent: clampInt(input.batteryPercent ?? input.battery ?? 0, 0, 150),
 		powerbankMah: clampInt(input.powerbankMah ?? input.powerbank_mAh ?? 0, 0, 1_000_000),
+		wifiCount: clampInt(input.wifiCount ?? input.wifi_count ?? 0, 0, 100000),
 		loadW: clampNumber(input.loadW ?? input.load_w ?? 5, 0.1, 1000),
 		lastSeen: Number(input.lastSeen || input.ts || now),
 		createdAt: Number.isFinite(createdAt) ? createdAt : now,
@@ -198,7 +199,13 @@ async function handleApi(req, res, pathname) {
 		const byId = new Map(existing.map((b) => [String(b.id), b]));
 		for (const box of incoming) {
 			const prev = byId.get(String(box.id));
-			byId.set(String(box.id), { ...prev, ...box, id: String(box.id) });
+			// merge existing values, preserve wifiCount if not provided
+			byId.set(String(box.id), {
+				...prev,
+				...box,
+				id: String(box.id),
+				wifiCount: box.wifiCount ?? prev?.wifiCount ?? 0,
+			});
 		}
 		const out = Array.from(byId.values());
 		await writeBoxes(out);

@@ -1,1 +1,1 @@
-window.API_BASE = "https://sosbox-cw.anuphut.workers.dev";
+window.API_BASE = "https://sos-box-worker.anuphut.workers.dev";
