@@ -61,7 +61,7 @@ for (const rel of toCopy) {
 try {
 	await fs.promises.copyFile(path.resolve(OUT_DIR, "main.html"), path.resolve(OUT_DIR, "index.html"));
 } catch {
-	// ignore
+	
 }
 
 console.log(`Prepared static output: ${path.relative(ROOT, OUT_DIR)}`);
