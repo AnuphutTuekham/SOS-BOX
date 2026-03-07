@@ -7,6 +7,7 @@ const OUT_DIR = path.resolve(ROOT, "public");
 const toCopy = [
 	"main.html",
 	"edit.html",
+	"raw-input.html",
 	"config.js",
 	"css",
 	"js",

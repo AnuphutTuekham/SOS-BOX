@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "id": 1,
+    "received_at": "2026-03-07T14:04:35.894Z",
+    "path": "/api/traccar/raw",
+    "method": "POST",
+    "content_type": "application/json",
+    "device_id": "",
+    "ip": "127.0.0.1",
+    "payload": "{\"device_id\":\"test-001\",\"lat\":13.7563,\"lon\":100.5018,\"battery\":0.85}"
+  }
+]
