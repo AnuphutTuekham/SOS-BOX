@@ -11,6 +11,7 @@ const MAX_PORT_TRIES = 25;
 
 const DATA_DIR = path.resolve(ROOT, "data");
 const DATA_FILE = path.resolve(DATA_DIR, "boxes.json");
+const RAW_INPUT_FILE = path.resolve(DATA_DIR, "raw-input.json");
 const MAX_BODY_BYTES = 1_000_000;
 const API_KEY = String(process.env.SOSBOX_API_KEY || "");
 
@@ -70,6 +71,12 @@ async function ensureDataFile() {
 	} catch {
 		await fs.promises.writeFile(DATA_FILE, "[]", "utf8");
 	}
+	try {
+		const st2 = await fs.promises.stat(RAW_INPUT_FILE);
+		if (!st2.isFile()) throw new Error("RAW_INPUT_FILE is not a file");
+	} catch {
+		await fs.promises.writeFile(RAW_INPUT_FILE, "[]", "utf8");
+	}
 }
 
 async function readJsonBody(req) {
@@ -111,6 +118,20 @@ async function readBoxes() {
 
 async function writeBoxes(boxes) {
 	await fs.promises.writeFile(DATA_FILE, JSON.stringify(boxes, null, 2), "utf8");
+}
+
+async function readRawInput() {
+	try {
+		const raw = await fs.promises.readFile(RAW_INPUT_FILE, "utf8");
+		const parsed = JSON.parse(raw || "[]");
+		return Array.isArray(parsed) ? parsed : [];
+	} catch {
+		return [];
+	}
+}
+
+async function writeRawInput(entries) {
+	await fs.promises.writeFile(RAW_INPUT_FILE, JSON.stringify(entries, null, 2), "utf8");
 }
 
 function json(res, status, payload) {
@@ -173,6 +194,30 @@ async function handleApi(req, res, pathname) {
 		return;
 	}
 
+	if (req.method === "POST" && pathname === "/api/traccar/raw") {
+		let body;
+		try {
+			body = await readJsonBody(req);
+		} catch (e) {
+			json(res, 400, { error: String(e?.message || "invalid json") });
+			return;
+		}
+		const entries = await readRawInput();
+		entries.push({
+			id: entries.length + 1,
+			received_at: new Date().toISOString(),
+			path: pathname,
+			method: req.method,
+			content_type: req.headers["content-type"] || "",
+			device_id: "",
+			ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress || "",
+			payload: typeof body === "string" ? body : JSON.stringify(body ?? null),
+		});
+		await writeRawInput(entries);
+		json(res, 200, { ok: true });
+		return;
+	}
+
 	if (req.method === "POST" && pathname === "/api/boxes/upsert") {
 		let body;
 		try {
@@ -225,6 +270,20 @@ async function handleApi(req, res, pathname) {
 		const filtered = existing.filter((b) => String(b.id) !== String(id));
 		await writeBoxes(filtered);
 		json(res, 200, { ok: true, deleted: existing.length - filtered.length });
+		return;
+	}
+
+	if (req.method === "GET" && pathname === "/api/raw-input") {
+		const limit = clampInt(new url.URL(req.url, `http://${req.headers.host}`).searchParams.get("limit") ?? 100, 1, 500);
+		const all = await readRawInput();
+		const sliced = all.slice(-limit).reverse();
+		json(res, 200, sliced);
+		return;
+	}
+
+	if (req.method === "DELETE" && pathname === "/api/raw-input") {
+		await writeRawInput([]);
+		json(res, 200, { ok: true });
 		return;
 	}
 

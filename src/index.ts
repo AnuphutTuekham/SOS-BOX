@@ -69,6 +69,12 @@ async function ensureSchema(db: D1Database) {
 		)
 		.run();
 
+	await db
+		.prepare(
+			"CREATE TABLE IF NOT EXISTS traccar_raw_input (id INTEGER PRIMARY KEY AUTOINCREMENT, received_at TEXT NOT NULL, path TEXT NOT NULL, method TEXT NOT NULL, content_type TEXT, device_id TEXT, ip TEXT, payload TEXT NOT NULL)"
+		)
+		.run();
+
 	const columns = await db.prepare("PRAGMA table_info(sosbox)").all();
 	const names = new Set((columns.results ?? []).map((c: any) => String(c.name)));
 	if (!names.has("device_id")) {
@@ -77,6 +83,58 @@ async function ensureSchema(db: D1Database) {
 	if (!names.has("wifi_count")) {
 		await db.prepare("ALTER TABLE sosbox ADD COLUMN wifi_count INTEGER DEFAULT 0").run();
 	}
+}
+
+function payloadToText(payload: unknown): string {
+	if (typeof payload === "string") return payload;
+	try {
+		return JSON.stringify(payload ?? null);
+	} catch {
+		return String(payload ?? "");
+	}
+}
+
+function pickDeviceId(payload: unknown): string {
+	if (!payload || typeof payload !== "object") return "";
+	const p = payload as any;
+	const item =
+		Array.isArray(p?.positions) && p.positions.length > 0
+			? p.positions[0]
+			: Array.isArray(p)
+				? p[0]
+				: p;
+	if (!item || typeof item !== "object") return "";
+	return String(item.device_id ?? item.deviceId ?? item.device?.id ?? item.id ?? item.deviceName ?? "");
+}
+
+function pickClientIp(request: Request): string {
+	const forwarded = request.headers.get("x-forwarded-for") || "";
+	if (forwarded.trim()) {
+		return forwarded.split(",")[0]?.trim() || "";
+	}
+	return request.headers.get("cf-connecting-ip") || "";
+}
+
+async function logRawInput(
+	db: D1Database,
+	request: Request,
+	path: string,
+	payload: unknown
+): Promise<void> {
+	await db
+		.prepare(
+			"INSERT INTO traccar_raw_input (received_at, path, method, content_type, device_id, ip, payload) VALUES (?,?,?,?,?,?,?)"
+		)
+		.bind(
+			new Date().toISOString(),
+			path,
+			request.method,
+			request.headers.get("content-type") || "",
+			pickDeviceId(payload),
+			pickClientIp(request),
+			payloadToText(payload)
+		)
+		.run();
 }
 
 type TraccarPayload = Record<string, unknown> | Array<Record<string, unknown>>;
@@ -190,11 +248,11 @@ async function readTraccarPayload(request: Request): Promise<TraccarPayload | nu
 export default {
 	async fetch(request: Request, env: Env): Promise<Response> {
 		const url = new URL(request.url);
+		await ensureSchema(env.sos_boxbd);
 
 		// Log root POST for Traccar Client
 		if (url.pathname === "/" && request.method === "POST") {
 			try {
-				await ensureSchema(env.sos_boxbd);
 				const contentType = request.headers.get("content-type") || "";
 				let payload: any = null;
 
@@ -213,6 +271,8 @@ export default {
 						payload = await request.clone().text();
 					}
 				}
+
+				await logRawInput(env.sos_boxbd, request, url.pathname, payload);
 
 				// Extract Traccar fields - handle nested location object
 				let item = typeof payload === "object" && payload !== null ? payload : {};
@@ -313,6 +373,30 @@ export default {
 			return json({ ok: true, service: "sos-box-worker" });
 		}
 
+		if (url.pathname === "/api/raw-input" && request.method === "GET") {
+			try {
+				const limit = clampInt(url.searchParams.get("limit") ?? 100, 1, 500);
+				const r = await env.sos_boxbd
+					.prepare(
+						"SELECT id, received_at, path, method, content_type, device_id, ip, payload FROM traccar_raw_input ORDER BY id DESC LIMIT ?"
+					)
+					.bind(limit)
+					.all();
+				return json(r.results ?? []);
+			} catch (e: any) {
+				return json({ error: e?.message || String(e) }, { status: 500 });
+			}
+		}
+
+		if (url.pathname === "/api/raw-input" && request.method === "DELETE") {
+			try {
+				await env.sos_boxbd.prepare("DELETE FROM traccar_raw_input").run();
+				return json({ ok: true });
+			} catch (e: any) {
+				return json({ error: e?.message || String(e) }, { status: 500 });
+			}
+		}
+
 		// Minimal API compatible with your frontend: /api/boxes + /api/boxes/upsert
 		if (url.pathname === "/api/boxes" && request.method === "GET") {
 			try {
@@ -387,22 +471,28 @@ export default {
 						)
 						.bind(b.name, b.lat, b.lon, b.status, b.batt, b.wifi_count ?? 0, createdAtIso, idNum)
 						.run();
-				} else {
-					await env.sos_boxbd
-						.prepare(
-							"INSERT INTO sosbox (name, lat, lon, status, batt, wifi_count, created_at) VALUES (?,?,?,?,?,?,?)"
-						)
-						.bind(b.name, b.lat, b.lon, b.status, b.batt, b.wifi_count ?? 0, createdAtIso)
+					} else {
+						await env.sos_boxbd
+							.prepare(
+								"INSERT INTO sosbox (name, lat, lon, status, batt, wifi_count, created_at) VALUES (?,?,?,?,?,?,?)"
+							)
+							.bind(b.name, b.lat, b.lon, b.status, b.batt, b.wifi_count ?? 0, createdAtIso)
+							.run();
+					}
+				}
+				return json({ ok: true, upserted: normalized.length });
+			} catch (e: any) {
+				return json({ error: e?.message || String(e) }, { status: 500 });
 			}
 		}
 
 		if (url.pathname === "/api/traccar" && (request.method === "POST" || request.method === "GET")) {
 			try {
-				await ensureSchema(env.sos_boxbd);
 				const payload =
 					request.method === "GET"
 						? Object.fromEntries(url.searchParams.entries())
 						: await readTraccarPayload(request);
+				await logRawInput(env.sos_boxbd, request, url.pathname, payload);
 				const items = Array.isArray(payload)
 					? payload
 					: Array.isArray((payload as any)?.positions)
@@ -430,14 +520,32 @@ export default {
 							.bind(b.name, b.lat, b.lon, b.status, b.batt, b.wifi_count ?? 0, createdAtIso, existing.id)
 							.run();
 						continue;
+						}
 					}
-				}
 
-				await env.sos_boxbd
-					.prepare(
-						"INSERT INTO sosbox (name, lat, lon, status, batt, wifi_count, created_at, device_id) VALUES (?,?,?,?,?,?,?,?)"
-					)
-					.bind(b.name, b.lat, b.lon, b.status, b.batt, b.wifi_count ?? 0, createdAtIso, b.deviceId)
+					await env.sos_boxbd
+						.prepare(
+							"INSERT INTO sosbox (name, lat, lon, status, batt, wifi_count, created_at, device_id) VALUES (?,?,?,?,?,?,?,?)"
+						)
+						.bind(b.name, b.lat, b.lon, b.status, b.batt, b.wifi_count ?? 0, createdAtIso, b.deviceId)
+						.run();
+				}
+				return json({ ok: true, upserted: normalized.length });
+			} catch (e: any) {
+				return json({ error: e?.message || String(e) }, { status: 500 });
+			}
+		}
+
+		if (url.pathname === "/api/traccar/raw" && request.method === "POST") {
+			try {
+				const payload = await readTraccarPayload(request);
+				await logRawInput(env.sos_boxbd, request, url.pathname, payload);
+				return json({ ok: true });
+			} catch (e: any) {
+				return json({ error: e?.message || String(e) }, { status: 500 });
+			}
+		}
+
 		const wifiMatch = url.pathname.match(/^\/api\/boxes\/(\d+)\/wifi_count$/);
 		if (wifiMatch) {
 			const id = clampInt(wifiMatch[1], 0, 2_000_000_000);

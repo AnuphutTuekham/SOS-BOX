@@ -98,6 +98,19 @@ curl -X POST -H "Content-Type: application/json" \
   https://sos-box-worker.anuphut.workers.dev/api/boxes/1/wifi_count
 ```
 
+## Traccar raw input
+
+Worker now stores raw requests received from Traccar into table `traccar_raw_input`.
+
+### POST `/api/traccar/raw`
+ใช้ endpoint นี้เพื่อส่ง raw payload จาก Traccar client โดยตรง (เก็บ log อย่างเดียว)
+
+### GET `/api/raw-input?limit=100`
+ดึงรายการ raw input ล่าสุด (ค่า `limit` 1-500)
+
+### DELETE `/api/raw-input`
+ลบ raw input ทั้งหมด
+
 
 ## Optional: API Key
 ถ้าตั้งค่า env `SOSBOX_API_KEY` เซิร์ฟเวอร์จะบังคับให้ส่ง header `x-api-key` ทุก request ของ `/api/*`

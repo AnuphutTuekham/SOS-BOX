@@ -509,6 +509,10 @@
 			});
 		});
 
+		on("btnOpenRawInput", "click", () => {
+			window.location.href = "raw-input.html";
+		});
+
 		on("btnClearAll", "click", () => {
 			if (!confirm("ลบ SOS BOX ทั้งหมด?")) return;
 			void (async () => {
