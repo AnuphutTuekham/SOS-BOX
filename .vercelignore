@@ -1,0 +1,16 @@
+# Backend / local dev / container files (not needed on Vercel)
+src/
+data/
+dev-server.mjs
+wrangler.json
+Dockerfile
+nginx.conf
+docker-entrypoint.d/
+API.md
+
+# Tooling
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.wrangler/

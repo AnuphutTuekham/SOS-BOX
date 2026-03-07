@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="th">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>SOSBOX - Raw Input</title>
+		<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+		<link rel="stylesheet" href="css/styles.css" />
+		<script src="config.js"></script>
+		<script src="js/raw-input.js" defer></script>
+	</head>
+	<body>
+		<div class="raw-page">
+			<aside class="raw-sidebar">
+				<div class="brand">
+					<div class="dot" aria-hidden="true"></div>
+					<div>
+						<h1>Raw Input Monitor</h1>
+						<div class="sub">ดู payload ที่รับจาก Traccar client แบบล่าสุดก่อน</div>
+					</div>
+				</div>
+
+				<div class="card">
+					<label>การควบคุม</label>
+					<div class="btns">
+						<button class="primary" id="btnRefresh" type="button">รีเฟรช</button>
+						<button id="btnBackMain" type="button">กลับหน้าแผนที่</button>
+						<button class="danger" id="btnClearRaw" type="button">ลบ Raw Input</button>
+					</div>
+				</div>
+
+				<div class="card">
+					<label>ตัวกรอง</label>
+					<div class="row single">
+						<div>
+							<label>จำนวนรายการสูงสุด</label>
+							<input id="limit" type="number" min="1" max="500" step="1" value="100" />
+						</div>
+					</div>
+					<p class="sub" style="margin-top: 8px">ระบบจะรีเฟรชอัตโนมัติทุก 8 วินาที</p>
+				</div>
+
+				<div class="card">
+					<div class="stats raw-stats">
+						<div class="stat">
+							<div class="k">รายการทั้งหมดที่โหลด</div>
+							<div class="v" id="totalRows">0</div>
+						</div>
+						<div class="stat">
+							<div class="k">เวลาอัปเดตล่าสุด</div>
+							<div class="v" id="lastUpdated">-</div>
+						</div>
+					</div>
+				</div>
+			</aside>
+
+			<main class="raw-content">
+				<div class="card raw-table-wrap">
+					<table class="raw-table" id="rawTable">
+						<thead>
+							<tr>
+								<th>ID</th>
+								<th>Received At</th>
+								<th>Path</th>
+								<th>Method</th>
+								<th>Device</th>
+								<th>IP</th>
+								<th>Payload</th>
+							</tr>
+						</thead>
+						<tbody id="rawTableBody"></tbody>
+					</table>
+				</div>
+			</main>
+
+			<div class="toast" id="toast"></div>
+		</div>
+	</body>
+</html>
