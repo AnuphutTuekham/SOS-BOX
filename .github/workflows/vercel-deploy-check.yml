@@ -97,10 +97,32 @@ jobs:
             exit 1
           fi
           
-          echo "Checking $URL"
-          # รอให้ Vercel พร้อมทำงานสักครู่ (5 วินาที) ก่อนตรวจสอบ
-          sleep 5
-          curl --fail --silent --show-error --location --retry 5 --retry-delay 5 "$URL" > /dev/null
+          echo "Checking deployment at: $URL"
+          echo "Waiting for Vercel to fully provision the deployment..."
+          sleep 15
+          
+          # ตรวจสอบ HTTP status โดยไม่ใช้ --fail เพื่อดู response
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+            --location \
+            --retry 5 \
+            --retry-delay 10 \
+            --max-time 30 \
+            --user-agent "Mozilla/5.0 (compatible; GitHub-Actions-Health-Check/1.0)" \
+            "$URL")
+          
+          echo "HTTP Response Code: $HTTP_CODE"
+          
+          # ยอมรับ 2xx และ 3xx (redirect) เป็น success
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
+            echo "✓ Deployment is healthy (HTTP $HTTP_CODE)"
+            exit 0
+          else
+            echo "✗ Deployment check failed (HTTP $HTTP_CODE)"
+            echo "URL: $URL"
+            # แสดง response headers เพื่อ debug
+            curl -I --location --max-time 10 "$URL" || true
+            exit 1
+          fi
 
   # ส่วนแจ้งเตือนกรณี Secrets หายไป (จะทำงานเมื่อ Job ก่อนหน้า fail)
   missing_secrets_notice:
