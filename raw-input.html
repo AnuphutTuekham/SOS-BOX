@@ -5,75 +5,81 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>SOSBOX - Raw Input</title>
 		<link rel="icon" href="favicon.svg" type="image/svg+xml" />
-		<link rel="stylesheet" href="css/styles.css" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+		<link rel="stylesheet" href="css/dashboard.css" />
 		<script src="config.js"></script>
+		<script src="js/utils.js"></script>
 		<script src="js/raw-input.js" defer></script>
 	</head>
 	<body>
-		<div class="raw-page">
-			<aside class="raw-sidebar">
-				<div class="brand">
-					<div class="dot" aria-hidden="true"></div>
-					<div>
-						<h1>Raw Input Monitor</h1>
-						<div class="sub">ดู payload ที่รับจาก Traccar client แบบล่าสุดก่อน</div>
-					</div>
-				</div>
-
-				<div class="card">
-					<label>การควบคุม</label>
-					<div class="btns">
-						<button class="primary" id="btnRefresh" type="button">รีเฟรช</button>
-						<button id="btnBackMain" type="button">กลับหน้าแผนที่</button>
-						<button class="danger" id="btnClearRaw" type="button">ลบ Raw Input</button>
-					</div>
-				</div>
-
-				<div class="card">
-					<label>ตัวกรอง</label>
-					<div class="row single">
-						<div>
-							<label>จำนวนรายการสูงสุด</label>
-							<input id="limit" type="number" min="1" max="500" step="1" value="100" />
-						</div>
-					</div>
-					<p class="sub" style="margin-top: 8px">ระบบจะรีเฟรชอัตโนมัติทุก 8 วินาที</p>
-				</div>
-
-				<div class="card">
-					<div class="stats raw-stats">
-						<div class="stat">
-							<div class="k">รายการทั้งหมดที่โหลด</div>
-							<div class="v" id="totalRows">0</div>
-						</div>
-						<div class="stat">
-							<div class="k">เวลาอัปเดตล่าสุด</div>
-							<div class="v" id="lastUpdated">-</div>
-						</div>
-					</div>
-				</div>
-			</aside>
-
-			<main class="raw-content">
-				<div class="card raw-table-wrap">
-					<table class="raw-table" id="rawTable">
-						<thead>
-							<tr>
-								<th>ID</th>
-								<th>Received At</th>
-								<th>Path</th>
-								<th>Method</th>
-								<th>Device</th>
-								<th>IP</th>
-								<th>Payload</th>
-							</tr>
-						</thead>
-						<tbody id="rawTableBody"></tbody>
-					</table>
-				</div>
-			</main>
-
-			<div class="toast" id="toast"></div>
+		<div class="sidebar">
+			<h2><i class="fas fa-wave-square"></i> Lab Monitor</h2>
+			<div class="nav-item" onclick="window.location.href='Labmonitor-dashboard.html'">
+				<i class="fas fa-th-large"></i> DashBoard
+			</div>
+			<div class="nav-item"><i class="fas fa-chart-line"></i> Overview</div>
+			<div class="nav-item"><i class="fas fa-box"></i> Devices</div>
+			<div class="nav-item active"><i class="fas fa-database"></i> Raw Sensor Data</div>
+			<div class="nav-item"><i class="fas fa-microchip"></i> Sensor Data</div>
+			<div class="nav-item"><i class="fas fa-envelope"></i> Email Alerts</div>
 		</div>
+
+		<div class="main-content">
+			<div class="header-top">
+				<div>
+					<h1 style="margin: 0">Raw Sensor Input</h1>
+					<small style="color: var(--text-muted)">Dashboard > Raw Sensor Data</small>
+				</div>
+				<div class="control-row">
+					<label for="limit" class="m-0 page-title">Limit</label>
+					<input id="limit" type="number" min="1" max="500" step="1" value="100" />
+					<button class="control-btn" id="btnRefresh" type="button">รีเฟรช</button>
+					<button class="control-btn" id="btnBackMain" type="button">กลับหน้าแผนที่</button>
+					<button class="control-btn danger" id="btnClearRaw" type="button">ลบ Raw Input</button>
+				</div>
+			</div>
+
+			<div class="stats-grid">
+				<div class="stat-card blue">
+					<h4>Rows Loaded</h4>
+					<p id="totalRows">0</p>
+				</div>
+				<div class="stat-card green">
+					<h4>Last Updated</h4>
+					<p id="lastUpdated">-</p>
+				</div>
+				<div class="stat-card orange">
+					<h4>Auto Refresh</h4>
+					<p>8s</p>
+				</div>
+				<div class="stat-card red">
+					<h4>Data Source</h4>
+					<p>Traccar</p>
+				</div>
+			</div>
+
+			<div class="table-card raw-table-wrap">
+				<div class="flex-between">
+					<span><i class="fas fa-database"></i> Latest Raw Input</span>
+					<span class="status-tag" style="background: var(--accent-blue)">Real-time</span>
+				</div>
+				<table class="raw-table" id="rawTable">
+					<thead>
+						<tr>
+							<th>ID</th>
+							<th>Received At</th>
+							<th>Path</th>
+							<th>Method</th>
+							<th>Device</th>
+							<th>IP</th>
+							<th>Payload</th>
+						</tr>
+					</thead>
+					<tbody id="rawTableBody"></tbody>
+				</table>
+			</div>
+		</div>
+
+		<div class="toast" id="toast"></div>
 	</body>
 </html>

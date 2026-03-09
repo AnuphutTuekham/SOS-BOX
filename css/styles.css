@@ -101,6 +101,39 @@ h1 {
 	grid-template-columns: 1fr;
 }
 
+/* --- Utility Classes --- */
+.flex {
+	display: flex;
+}
+
+.flex-between {
+	display: flex;
+	justify-content: space-between;
+}
+
+.items-center {
+	align-items: center;
+}
+
+.gap-10 {
+	gap: 10px;
+}
+
+.spacer-10 {
+	height: 10px;
+}
+
+.hidden {
+	display: none;
+}
+
+.battery-preview {
+	margin-top: 6px;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
 label {
 	display: block;
 	font-size: 12px;
@@ -435,6 +468,38 @@ button.danger {
 	border-right: 1px solid var(--border);
 	background: linear-gradient(180deg, rgba(15, 19, 38, 0.82), rgba(9, 12, 26, 0.65));
 	overflow: auto;
+}
+
+.lab-nav-wrap {
+	margin-bottom: 14px;
+}
+
+.raw-sidebar h2 {
+	font-size: 1.2rem;
+	margin: 0 0 16px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+}
+
+.raw-sidebar .nav-item {
+	padding: 12px 15px;
+	margin-bottom: 5px;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: 0.3s;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	color: var(--muted);
+	border: 1px solid transparent;
+}
+
+.raw-sidebar .nav-item.active,
+.raw-sidebar .nav-item:hover {
+	background-color: #1c223a;
+	color: #fff;
+	border-color: rgba(255, 255, 255, 0.08);
 }
 
 .raw-content {

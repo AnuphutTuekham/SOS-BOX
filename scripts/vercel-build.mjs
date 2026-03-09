@@ -14,6 +14,7 @@ const toCopy = [
 	"js",
 	"pic",
 	"favicon.svg",
+	"favicon.ico",
 ];
 
 async function rmDir(dir) {

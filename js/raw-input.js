@@ -1,35 +1,11 @@
+/**
+ * Raw input page logic for raw-input.html
+ * Display raw sensor data from Traccar
+ */
 (() => {
 	"use strict";
 
-	const $ = (id) => document.getElementById(id);
-	const toastEl = $("toast");
-	const API_BASE = String(window.API_BASE || "").trim();
-	const apiUrl = (path) => (API_BASE ? new URL(path, API_BASE).toString() : path);
-
-	function showToast(message, timeoutMs = 2400) {
-		if (!toastEl) return;
-		toastEl.textContent = message;
-		toastEl.style.display = "block";
-		window.clearTimeout(showToast._t);
-		showToast._t = window.setTimeout(() => {
-			toastEl.style.display = "none";
-		}, timeoutMs);
-	}
-
-	function clampInt(v, min, max) {
-		const n = Math.round(Number(v));
-		if (!Number.isFinite(n)) return min;
-		return Math.min(max, Math.max(min, n));
-	}
-
-	function escapeHtml(str) {
-		return String(str)
-			.replaceAll("&", "&amp;")
-			.replaceAll("<", "&lt;")
-			.replaceAll(">", "&gt;")
-			.replaceAll('"', "&quot;")
-			.replaceAll("'", "&#039;");
-	}
+	const { $, apiUrl, clampInt, escapeHtml, showToast } = window.SOSBoxUtils;
 
 	function prettyPayload(value) {
 		const raw = String(value ?? "");
