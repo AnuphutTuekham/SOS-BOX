@@ -52,8 +52,7 @@ jobs:
   vercel_deploy:
     name: Deploy and Verify Vercel
     runs-on: ubuntu-latest
-    needs: validate # ต้องผ่าน Job validate ก่อนถึงจะเริ่มทำส่วนนี้
-    
+    needs: validate
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -68,35 +67,40 @@ jobs:
         run: npm install --global vercel@latest
 
       - name: Pull Vercel Environment
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            vercel pull --yes --environment=preview --token "$VERCEL_TOKEN"
-          else
-            vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
-          fi
+        run: vercel pull --yes --environment=$( [ "${{ github.event_name }}" = "pull_request" ] && echo "preview" || echo "production" ) --token "$VERCEL_TOKEN"
 
       - name: Build with Vercel
-        run: vercel build --token "$VERCEL_TOKEN"
+        run: vercel build $( [ "${{ github.event_name }}" != "pull_request" ] && echo "--prod" ) --token "$VERCEL_TOKEN"
 
       - name: Deploy to Vercel
         id: deploy
         run: |
+          # ใช้คำสั่ง vercel deploy พร้อม --prod ถ้าไม่ใช่ PR และดึง URL ออกมา
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            # Deploy แบบ Preview สำหรับ Pull Request
-            DEPLOYMENT_URL=$(vercel deploy --prebuilt --yes --token "$VERCEL_TOKEN" | awk 'NF {line=$0} END {print line}')
+            COMMAND="vercel deploy --prebuilt --yes --token $VERCEL_TOKEN"
           else
-            # Deploy แบบ Production สำหรับการ Push ลง main
-            DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --yes --token "$VERCEL_TOKEN" | awk 'NF {line=$0} END {print line}')
+            COMMAND="vercel deploy --prebuilt --prod --yes --token $VERCEL_TOKEN"
           fi
-          echo "deployment_url=$DEPLOYMENT_URL" >> "$GITHUB_OUTPUT"
-          echo "Deployed URL: $DEPLOYMENT_URL"
+          
+          # ดึง URL โดยตรงและตัดช่องว่างออก
+          DEPLOY_URL=$($COMMAND)
+          echo "deployment_url=$DEPLOY_URL" >> "$GITHUB_OUTPUT"
+          echo "Deployed URL: $DEPLOY_URL"
 
       - name: Health Check Deployment
         run: |
+          # ดึงค่าจาก output ของ step ที่ชื่อ 'deploy'
           URL="${{ steps.deploy.outputs.deployment_url }}"
+          
+          if [ -z "$URL" ]; then
+            echo "Error: Deployment URL is empty!"
+            exit 1
+          fi
+          
           echo "Checking $URL"
-          # ลองเรียก URL เพื่อดูว่าหน้าเว็บใช้งานได้จริงไหม (Retry 5 ครั้ง)
-          curl --fail --silent --show-error --location --retry 5 --retry-delay 3 "$URL" > /dev/null
+          # รอให้ Vercel พร้อมทำงานสักครู่ (5 วินาที) ก่อนตรวจสอบ
+          sleep 5
+          curl --fail --silent --show-error --location --retry 5 --retry-delay 5 "$URL" > /dev/null
 
   # ส่วนแจ้งเตือนกรณี Secrets หายไป (จะทำงานเมื่อ Job ก่อนหน้า fail)
   missing_secrets_notice:
