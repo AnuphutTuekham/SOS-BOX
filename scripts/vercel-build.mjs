@@ -6,6 +6,7 @@ const OUT_DIR = path.resolve(ROOT, "public");
 
 const toCopy = [
 	"main.html",
+	"Labmonitor-dashboard.html",
 	"edit.html",
 	"raw-input.html",
 	"config.js",

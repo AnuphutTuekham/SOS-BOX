@@ -3,7 +3,9 @@
 	"outputDirectory": "public",
 	"version": 2,
 	"redirects": [
-		{ "source": "/", "destination": "/main.html", "permanent": false }
+		{ "source": "/", "destination": "/main.html", "permanent": false },
+		{ "source": "/dashboard", "destination": "/Labmonitor-dashboard.html", "permanent": false },
+		{ "source": "/dashboard/", "destination": "/Labmonitor-dashboard.html", "permanent": false }
 	],
 	"rewrites": [
 		{
