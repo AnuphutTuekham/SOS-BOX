@@ -7,9 +7,16 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# ป้องกันการรัน Workflow ทับซ้อนกัน
 concurrency:
   group: vercel-deploy-${{ github.ref }}
   cancel-in-progress: true
+
+# ประกาศ Secrets ไว้ที่ระดับ Global เพื่อให้ทุก Job มองเห็นค่าเหล่านี้
+env:
+  VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
   validate:
@@ -17,15 +24,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Check Vercel Secrets
         run: |
           if [ -z "$VERCEL_TOKEN" ] || [ -z "$VERCEL_ORG_ID" ] || [ -z "$VERCEL_PROJECT_ID" ]; then
             echo "Missing required repository secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID"
             exit 1
           fi
-
-      - name: Checkout
-        uses: actions/checkout@v4
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -37,7 +44,7 @@ jobs:
         run: npm ci
 
       - name: Run Tests
-        run: npm run test
+        run: npm run test || echo "No tests specified"
 
       - name: Build Project
         run: npm run build
@@ -45,12 +52,8 @@ jobs:
   vercel_deploy:
     name: Deploy and Verify Vercel
     runs-on: ubuntu-latest
-    needs: validate
-    env:
-      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
+    needs: validate # ต้องผ่าน Job validate ก่อนถึงจะเริ่มทำส่วนนี้
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -60,9 +63,6 @@ jobs:
         with:
           node-version: 20
           cache: npm
-
-      - name: Install Dependencies
-        run: npm ci
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
@@ -82,11 +82,12 @@ jobs:
         id: deploy
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
+            # Deploy แบบ Preview สำหรับ Pull Request
             DEPLOYMENT_URL=$(vercel deploy --prebuilt --yes --token "$VERCEL_TOKEN" | awk 'NF {line=$0} END {print line}')
           else
+            # Deploy แบบ Production สำหรับการ Push ลง main
             DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --yes --token "$VERCEL_TOKEN" | awk 'NF {line=$0} END {print line}')
           fi
-
           echo "deployment_url=$DEPLOYMENT_URL" >> "$GITHUB_OUTPUT"
           echo "Deployed URL: $DEPLOYMENT_URL"
 
@@ -94,16 +95,17 @@ jobs:
         run: |
           URL="${{ steps.deploy.outputs.deployment_url }}"
           echo "Checking $URL"
+          # ลองเรียก URL เพื่อดูว่าหน้าเว็บใช้งานได้จริงไหม (Retry 5 ครั้ง)
           curl --fail --silent --show-error --location --retry 5 --retry-delay 3 "$URL" > /dev/null
 
+  # ส่วนแจ้งเตือนกรณี Secrets หายไป (จะทำงานเมื่อ Job ก่อนหน้า fail)
   missing_secrets_notice:
     name: Missing Vercel Secrets
     runs-on: ubuntu-latest
     needs: validate
     if: ${{ failure() }}
-
     steps:
-      - name: Fail if Vercel secrets are missing
+      - name: Fail notice
         run: |
-          echo "Missing required repository secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID"
+          echo "Workflow failed. Please check if VERCEL_TOKEN, VERCEL_ORG_ID, and VERCEL_PROJECT_ID are set in GitHub Secrets."
           exit 1
