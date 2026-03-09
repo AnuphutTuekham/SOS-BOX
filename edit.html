@@ -52,7 +52,7 @@
 						<div><input id="lat" type="number" step="0.000001" placeholder="Latitude" /></div>
 						<div><input id="lng" type="number" step="0.000001" placeholder="Longitude" /></div>
 					</div>
-					<div style="height: 10px"></div>
+					<div class="spacer-10"></div>
 					<div class="btns">
 						<button class="primary" id="btnLocate" type="button">หาตำแหน่งฉัน</button>
 						<button id="btnCopyLatLng" type="button">คัดลอกพิกัด</button>
@@ -78,7 +78,14 @@
 							<input id="powerbankMah" type="number" min="0" step="100" value="10000" />
 						</div>
 					</div>
-					<div style="height: 10px"></div>
+					<div class="spacer-10"></div>
+					<div class="row single">
+						<div>
+							<label>จำนวนเชื่อมต่อ WiFi</label>
+							<input id="wifiCount" type="number" min="0" step="1" value="0" />
+						</div>
+					</div>
+					<div class="spacer-10"></div>
 					<div class="row">
 						<div>
 							<label>กำลังที่ใช้ (W)</label>
@@ -89,9 +96,9 @@
 							<input id="lastSeen" type="text" placeholder="-" disabled />
 						</div>
 					</div>
-					<div style="height: 10px"></div>
+					<div class="spacer-10"></div>
 					<textarea id="note" placeholder="รายละเอียดเพิ่มเติม (ไม่บังคับ)"></textarea>
-					<div style="height: 10px"></div>
+					<div class="spacer-10"></div>
 					<div class="btns">
 						<button class="primary" id="btnSave" type="button">บันทึก</button>
 						<button id="btnSeenNow" type="button">อัปเดต last seen = ตอนนี้</button>

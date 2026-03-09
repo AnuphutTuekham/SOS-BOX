@@ -135,6 +135,10 @@ td {
     font-size: 0.75rem;
 }
 
+.status-tag-blue {
+    background: var(--accent-blue);
+}
+
 .value-text { color: var(--accent-blue); font-weight: bold; }
 
 /* --- Raw Input Page Styles --- */

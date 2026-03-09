@@ -14,7 +14,7 @@
 	<body>
 		<div class="sidebar">
 			<h2><i class="fas fa-wave-square"></i> Lab Monitor</h2>
-			<div class="nav-item" onclick="window.location.href='Labmonitor-dashboard.html'">
+			<div class="nav-item" id="btnOpenDashboard">
 				<i class="fas fa-th-large"></i> DashBoard
 			</div>
 			<div class="nav-item"><i class="fas fa-chart-line"></i> Overview</div>
@@ -27,8 +27,8 @@
 		<div class="main-content">
 			<div class="header-top">
 				<div>
-					<h1 style="margin: 0">Raw Sensor Input</h1>
-					<small style="color: var(--text-muted)">Dashboard > Raw Sensor Data</small>
+					<h1 class="m-0">Raw Sensor Input</h1>
+					<small class="page-title">Dashboard > Raw Sensor Data</small>
 				</div>
 				<div class="control-row">
 					<label for="limit" class="m-0 page-title">Limit</label>
@@ -61,7 +61,7 @@
 			<div class="table-card raw-table-wrap">
 				<div class="flex-between">
 					<span><i class="fas fa-database"></i> Latest Raw Input</span>
-					<span class="status-tag" style="background: var(--accent-blue)">Real-time</span>
+					<span class="status-tag status-tag-blue">Real-time</span>
 				</div>
 				<table class="raw-table" id="rawTable">
 					<thead>

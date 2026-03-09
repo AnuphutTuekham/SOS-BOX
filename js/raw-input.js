@@ -96,6 +96,10 @@
 			window.location.href = "main.html";
 		});
 
+		$("btnOpenDashboard")?.addEventListener("click", () => {
+			window.location.href = "Labmonitor-dashboard.html";
+		});
+
 		$("btnClearRaw")?.addEventListener("click", () => {
 			if (!window.confirm("ลบ raw input ทั้งหมดใช่หรือไม่?")) return;
 			void (async () => {

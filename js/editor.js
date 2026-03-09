@@ -63,19 +63,6 @@
 	document.addEventListener("DOMContentLoaded", () => {
 		void (async () => {
 		const url = new URL(window.location.href);
-		// dynamically add wifiCount input under powerbank row
-		const pwInput = document.getElementById("powerbankMah");
-		if (pwInput) {
-			const pwDiv = pwInput.closest("div");
-			if (pwDiv && pwDiv.parentElement) {
-				const wifiDiv = document.createElement("div");
-				wifiDiv.innerHTML = `
-					<label>จำนวนเชื่อมต่อ WiFi</label>
-					<input id="wifiCount" type="number" min="0" step="1" value="0" />
-				`;
-				pwDiv.parentElement.appendChild(wifiDiv);
-			}
-		}
 		const id = url.searchParams.get("id") || "";
 		const ll = url.searchParams.get("ll");
 		const z = Number(url.searchParams.get("z") || "16");

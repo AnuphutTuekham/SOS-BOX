@@ -387,6 +387,10 @@
 				});
 			});
 
+			on("btnOpenDashboard", "click", () => {
+				window.location.href = "Labmonitor-dashboard.html";
+			});
+
 			on("btnClearAll", "click", () => {
 				if (!confirm("ลบ SOS BOX ทั้งหมด?")) return;
 				void (async () => {
@@ -431,14 +435,6 @@
 				shareUrl.searchParams.set("z", String(map.getZoom()));
 				await copyText(shareUrl.toString());
 				showToast("คัดลอกลิงก์แชร์แล้ว");
-			});
-
-			on("basemap", "change", (e) => {
-				const v = e.target.value;
-				if (!layers[v]) return;
-				map.removeLayer(activeBase);
-				activeBase = layers[v];
-				activeBase.addTo(map);
 			});
 
 			on("statusFilter", "change", () => {

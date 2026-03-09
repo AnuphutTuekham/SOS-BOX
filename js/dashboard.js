@@ -79,6 +79,10 @@
 	}
 
 	document.addEventListener("DOMContentLoaded", () => {
+		$("btnOpenRawInput")?.addEventListener("click", () => {
+			window.location.href = "raw-input.html";
+		});
+
 		void (async () => {
 			await refreshData();
 			setInterval(refreshData, 30000);
