@@ -1,4 +1,6 @@
 {
+	"buildCommand": "npm run build",
+	"outputDirectory": "public",
 	"version": 2,
 	"redirects": [
 		{ "source": "/", "destination": "/main.html", "permanent": false }
