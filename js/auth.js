@@ -4,6 +4,8 @@
     const STORAGE_KEY = "sosbox_auth";
     const API_BASE = String(window.API_BASE || "").trim();
     const AUTH_FALLBACK_BASE = "https://sos-box-worker.anuphut.workers.dev";
+    const DEFAULT_ADMIN_EMAIL = "superadmin@sosbox.com";
+    const DEFAULT_ADMIN_PASSWORD = "sosbox12345";
 
     function isProductionMode() {
         if (typeof window.SOSBOX_IS_PRODUCTION === "boolean") {
@@ -24,6 +26,10 @@
 
     function normalizeEmail(value) {
         return String(value || "").trim().toLowerCase();
+    }
+
+    function canUseDefaultAdminFallback(email, password) {
+        return normalizeEmail(email) === DEFAULT_ADMIN_EMAIL && String(password || "") === DEFAULT_ADMIN_PASSWORD;
     }
 
     function setSession(email) {
@@ -113,12 +119,27 @@
     }
 
     async function login(email, password) {
-        const data = await request("/api/auth/login", {
-            email: normalizeEmail(email),
-            password: String(password || ""),
-        });
-        setSession(data.email || email);
-        return data;
+        const normalizedEmail = normalizeEmail(email);
+        const normalizedPassword = String(password || "");
+
+        try {
+            const data = await request("/api/auth/login", {
+                email: normalizedEmail,
+                password: normalizedPassword,
+            });
+            setSession(data.email || normalizedEmail);
+            return data;
+        } catch (error) {
+            const message = String(error?.message || "");
+
+            // If backend auth route is not deployed yet, allow default admin login as a compatibility fallback.
+            if (message.toLowerCase().includes("not found") && canUseDefaultAdminFallback(normalizedEmail, normalizedPassword)) {
+                const data = { ok: true, email: DEFAULT_ADMIN_EMAIL, mode: "fallback" };
+                setSession(data.email);
+                return data;
+            }
+            throw error;
+        }
     }
 
     async function register(email, password) {
