@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOS BOX - Overview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0e23;
+            --sidebar-bg: #0f1429;
+            --input-bg: #161b33;
+            --accent-blue: #007bff;
+            --text-gray: #a0aec0;
+            --border-color: #2d3748;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Kanit', sans-serif; }
+
+        body { background-color: #cccccc; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+
+        .dashboard-container {
+            width: 1200px;
+            height: 700px;
+            background-color: #e5e5e5; /* พื้นที่ว่างฝั่งขวา */
+            display: flex;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        /* --- Left Side Panel --- */
+        .side-panel {
+            width: 350px;
+            background-color: var(--sidebar-bg);
+            color: white;
+            padding: 25px;
+            height: 100%;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        
+        .description { font-size: 12px; color: var(--text-gray); line-height: 1.5; margin-bottom: 15px; }
+
+        .btn-track {
+            background-color: #00b4d8;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        /* Group Boxes */
+        .info-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .btn-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .btn-small {
+            flex: 1;
+            background: #1a203c;
+            border: 1px solid #333;
+            color: white;
+            font-size: 10px;
+            padding: 6px;
+            border-radius: 15px;
+            cursor: pointer;
+        }
+
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .status-box {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid #2d3748;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .status-box label { font-size: 10px; color: var(--text-gray); display: block; margin-bottom: 5px; }
+        .status-box span { font-size: 13px; font-weight: 400; }
+
+        /* Filter Section */
+        .filter-section { font-size: 12px; }
+        .filter-group { margin-bottom: 15px; }
+        .filter-group label { display: block; color: var(--text-gray); font-size: 11px; margin-bottom: 5px; }
+        
+        select, input[type="number"] {
+            width: 100%;
+            background: var(--input-bg);
+            border: 1px solid #2d3748;
+            border-radius: 6px;
+            padding: 8px;
+            color: white;
+            outline: none;
+        }
+
+        .note { font-size: 10px; color: #666; line-height: 1.4; margin-top: 10px; }
+
+        /* Right Side Placeholder */
+        .content-area { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; }
+        .search-icon { position: absolute; top: 20px; right: 20px; background: white; width: 45px; height: 45px; border-radius: 50%; display: flex; justify-content: center; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .map-controls { position: absolute; top: 20px; left: 20px; display: flex; flex-direction: column; gap: 5px; }
+        .ctrl-btn { width: 30px; height: 30px; background: white; border: 1px solid #ccc; display: flex; justify-content: center; align-items: center; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <aside class="side-panel">
+        <div class="header-section">
+            <h2 style="font-size: 20px; display: flex; align-items: center;">
+                <span style="margin-right: 10px;">📉</span> Overview
+            </h2>
+            <span style="cursor:pointer;">&larr;</span>
+        </div>
+
+        <div class="description">
+            ภาพรวมระบบ<br>
+            ดูตำแหน่งทั้งหมดแบบเรียลไทม์ จัดการสถานะ และอัปเดตข้อมูลกล่องได้จากหน้าเดียว
+        </div>
+
+        <button class="btn-track">เริ่มติดตามตำแหน่ง</button>
+
+        <p style="font-size: 11px; color: var(--text-gray); margin-bottom: 10px;">
+            ใช้เมนู "เพิ่ม/แก้ไข SOS BOX" ด้านล่างเพื่อจัดการข้อมูล
+        </p>
+
+        <div class="info-card">
+            <div class="btn-row">
+                <button class="btn-small">คัดลอกพิกัดกึ่งกลาง</button>
+                <button class="btn-small">แชร์ลิงก์ตำแหน่ง</button>
+            </div>
+
+            <div class="status-grid">
+                <div class="status-box">
+                    <label>พิกัดกึ่งกลาง (lat, lng)</label>
+                    <span>-</span>
+                </div>
+                <div class="status-box">
+                    <label>ซูม</label>
+                    <span>-</span>
+                </div>
+                <div class="status-box">
+                    <label>จำนวน SOS BOX</label>
+                    <span>0</span>
+                </div>
+                <div class="status-box">
+                    <label>สถานะ (ออนไลน์/ออฟไลน์/แบตต่ำ)</label>
+                    <span style="font-size: 11px;">0 / 0 / 0</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-card">
+            <div class="filter-group">
+                <label>ตัวกรองแสดงสถานะ:</label>
+                <select>
+                    <option>ทั้งหมด</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>ถือว่าออฟไลน์เกิน (นาที):</label>
+                <input type="number" value="30">
+            </div>
+            <div class="note">
+                หมายเหตุ:<br>
+                ระบบจะ "ประเมินสถานะ" จากเวลา last seen + แบตเตอรี่<br>
+                (แก้ไขด้วยการอัปเดต last seen)
+            </div>
+        </div>
+    </aside>
+
+    <div class="content-area">
+        <div class="map-controls">
+            <div class="ctrl-btn">+</div>
+            <div class="ctrl-btn">-</div>
+            <div class="ctrl-btn" style="font-size: 10px;">4</div>
+        </div>
+        <div class="search-icon">🔍</div>
+        <div style="color: #999;">Overview Map View Area</div>
+    </div>
+</div>
+
+</body>
+</html>

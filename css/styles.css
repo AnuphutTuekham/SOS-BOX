@@ -308,9 +308,108 @@ button.danger {
 	content: "";
 	width: 8px;
 	height: 8px;
-	border-radius: 999px;
-	background: rgba(255, 255, 255, 0.35);
 }
+
+/* register.html styles moved from inline CSS */
+body.register-page {
+	background-color: #cccccc;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+	font-family: 'Kanit', sans-serif;
+}
+
+body.register-page * {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body.register-page .container {
+	background: linear-gradient(180deg, #101530 0%, #2a3a7c 100%);
+	width: 900px;
+	height: 600px;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+	position: relative;
+}
+
+body.register-page .top-label {
+	position: absolute;
+	top: 20px;
+	left: 20px;
+	color: #7a7a7a;
+	font-size: 14px;
+}
+
+body.register-page .logo-section {
+	display: flex;
+	align-items: center;
+	margin-bottom: 50px;
+	color: white;
+}
+
+body.register-page .cube-icon {
+	width: 40px;
+	height: 40px;
+	background-color: white;
+	clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+	margin-right: 15px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+body.register-page .logo-text {
+	font-size: 48px;
+	font-weight: 700;
+	letter-spacing: 2px;
+}
+
+body.register-page .form-group {
+	display: flex;
+	align-items: center;
+	margin-bottom: 25px;
+	width: 100%;
+	max-width: 450px;
+}
+
+body.register-page .form-group label {
+	color: #cbd5e0;
+	font-size: 18px;
+	width: 100px;
+	text-align: right;
+	margin-right: 20px;
+}
+
+body.register-page .form-group input {
+	flex: 1;
+	padding: 12px 20px;
+	border-radius: 12px;
+	border: none;
+	outline: none;
+	font-size: 16px;
+	background-color: white;
+}
+
+body.register-page .btn-register {
+	margin-top: 20px;
+	padding: 10px 40px;
+	background-color: transparent;
+	border: 2px solid white;
+	color: white;
+	border-radius: 10px;
+	cursor: pointer;
+	transition: 0.3s;
+	display: none;
+}
+	border-radius: 999px;
+	
+
 
 .badge.online {
 	border-color: rgba(86, 242, 199, 0.35);
