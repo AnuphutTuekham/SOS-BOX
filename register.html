@@ -25,13 +25,25 @@
 
         <div class="form-group">
             <label>Password</label>
-            <input id="password" type="password" placeholder="••••••••">
+            <div class="password-wrap">
+                <input id="password" type="password" placeholder="••••••••">
+                <button type="button" class="password-toggle" id="btnTogglePassword">แสดง</button>
+            </div>
         </div>
 
         <button type="button" class="btn-submit" id="btnLogin">เข้าสู่ระบบ</button>
         <div class="btn-row">
+            <button type="button" class="btn-secondary" id="btnBack">ย้อนกลับ</button>
+            <button type="button" class="btn-secondary" id="btnRegister">สมัครสมาชิก</button>
             <button type="button" class="btn-secondary" id="btnLogout">ออกจากระบบ</button>
         </div>
+        <div class="msg" id="authMessage"></div>
+        <div class="quick-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="device.html">Devices</a>
+            <a href="sensor.html">Sensor</a>
+        </div>
+    </div>
 
     <script src="config.js"></script>
     <script src="js/auth.js"></script>
@@ -40,23 +52,39 @@
             const emailEl = document.getElementById("email");
             const passwordEl = document.getElementById("password");
             const msgEl = document.getElementById("authMessage");
+            const btnRegister = document.getElementById("btnRegister");
+            const btnTogglePassword = document.getElementById("btnTogglePassword");
+
+            const isProduction = window.SOSBoxAuth?.isProductionMode?.() ?? false;
+            const returnTo = String(new URL(window.location.href).searchParams.get("return") || "");
+            const allowedReturns = new Set([
+                "dashboard.html",
+                "device.html",
+                "sensor.html",
+                "raw-input.html",
+                "main.html",
+            ]);
 
             function setMessage(text, isError) {
                 msgEl.textContent = text;
                 msgEl.style.color = isError ? "#fda4af" : "#cbd5e0";
             }
 
-            document.getElementById("btnLogin").addEventListener("click", async function () {
+            document.getElementById("btnLogin")?.addEventListener("click", async function () {
                 try {
                     await window.SOSBoxAuth.login(emailEl.value, passwordEl.value);
                     setMessage("เข้าสู่ระบบสำเร็จ", false);
+                    if (allowedReturns.has(returnTo)) {
+                        window.location.href = returnTo;
+                        return;
+                    }
                     window.location.href = "dashboard.html";
                 } catch (e) {
                     setMessage(e.message || "เข้าสู่ระบบไม่สำเร็จ", true);
                 }
             });
 
-            document.getElementById("btnRegister").addEventListener("click", async function () {
+            document.getElementById("btnRegister")?.addEventListener("click", async function () {
                 try {
                     await window.SOSBoxAuth.register(emailEl.value, passwordEl.value);
                     setMessage("สมัครสมาชิกสำเร็จ", false);
@@ -66,10 +94,30 @@
                 }
             });
 
-            document.getElementById("btnLogout").addEventListener("click", function () {
+            document.getElementById("btnLogout")?.addEventListener("click", function () {
                 window.SOSBoxAuth.logout();
                 setMessage("ออกจากระบบแล้ว", false);
             });
+
+            document.getElementById("btnBack")?.addEventListener("click", function () {
+                if (window.history.length > 1) {
+                    window.history.back();
+                    return;
+                }
+                window.location.href = "main.html";
+            });
+
+            btnTogglePassword?.addEventListener("click", function () {
+                if (!passwordEl) return;
+                const show = passwordEl.type === "password";
+                passwordEl.type = show ? "text" : "password";
+                btnTogglePassword.textContent = show ? "ซ่อน" : "แสดง";
+            });
+
+            if (isProduction && btnRegister) {
+                btnRegister.style.display = "none";
+                setMessage("โหมด Production: ปิดการสมัครสมาชิก ใช้บัญชี superadmin เท่านั้น", false);
+            }
         })();
     </script>
     <script src="js/nav-active.js"></script>

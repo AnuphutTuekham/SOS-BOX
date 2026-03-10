@@ -1,7 +1,7 @@
 (() => {
     "use strict";
 
-    const { $, apiGetBoxes, apiUrl, clampInt, showToast } = window.SOSBoxUtils;
+    const { $, apiUrl, clampInt, showToast } = window.SOSBoxUtils;
 
     function extractPrimaryPayload(payload) {
         if (Array.isArray(payload)) return payload[0] ?? {};
@@ -38,6 +38,29 @@
         return "-";
     }
 
+    function normalizePayload(payload) {
+        const primary = extractPrimaryPayload(payload);
+        const location = primary?.location && typeof primary.location === "object" ? primary.location : null;
+        let merged = { ...primary };
+
+        if (location) {
+            merged = { ...merged, ...location };
+
+            // Some clients submit position as querystring inside location._
+            if (typeof location._ === "string") {
+                const qs = new URLSearchParams(location._);
+                const qLat = qs.get("lat");
+                const qLon = qs.get("lon") ?? qs.get("lng");
+                const qBatt = qs.get("batt") ?? qs.get("battery") ?? qs.get("batteryLevel");
+                if (qLat !== null) merged.lat = qLat;
+                if (qLon !== null) merged.lon = qLon;
+                if (qBatt !== null) merged.battery = qBatt;
+            }
+        }
+
+        return merged;
+    }
+
     function batteryClass(percent) {
         if (percent <= 20) return "battery-low";
         if (percent <= 60) return "battery-mid";
@@ -51,7 +74,7 @@
     }
 
     function pickDeviceId(row, payload) {
-        const primary = extractPrimaryPayload(payload);
+        const primary = normalizePayload(payload);
         return String(
             row?.device_id ||
                 row?.deviceId ||
@@ -60,7 +83,7 @@
                 primary?.device?.id ||
                 primary?.deviceName ||
                 primary?.id ||
-                "unknown"
+                `unknown-${row?.id ?? Date.now()}`
         );
     }
 
@@ -79,14 +102,7 @@
         if (!tbody) return;
 
         try {
-            const [boxes, rows] = await Promise.all([apiGetBoxes(), fetchRaw(100)]);
-            const boxBatteryById = new Map();
-            for (const box of boxes) {
-                const battery = clampInt(box.batteryPercent ?? 0, 0, 150);
-                boxBatteryById.set(String(box.id), battery);
-                if (box.deviceId) boxBatteryById.set(String(box.deviceId), battery);
-                if (box.name) boxBatteryById.set(String(box.name), battery);
-            }
+            const rows = await fetchRaw(100);
 
             const latestByDevice = new Map();
             for (const row of rows) {
@@ -106,8 +122,7 @@
 
             tbody.innerHTML = rendered
                 .map(([deviceId, entry]) => {
-                    const row = entry.row;
-                    const payload = extractPrimaryPayload(entry.payload);
+                    const payload = normalizePayload(entry.payload);
                     const speed = pickNumber(payload, ["speed", "spd", "velocity"]);
                     const altitude = pickNumber(payload, ["altitude", "alt"]);
                     const gpsAccuracy = pickNumber(payload, ["accuracy", "gpsAccuracy", "hdop"]);
@@ -120,11 +135,7 @@
                         "batt",
                     ]);
                     const batteryFromPayload = normalizeBatteryPercent(batteryRaw);
-                    const battery = clampInt(
-                        batteryFromPayload ?? boxBatteryById.get(deviceId) ?? 0,
-                        0,
-                        150
-                    );
+                    const battery = clampInt(batteryFromPayload ?? 0, 0, 150);
 
                     return `
                         <tr>

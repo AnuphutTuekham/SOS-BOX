@@ -3,6 +3,20 @@
 
     const STORAGE_KEY = "sosbox_auth";
     const API_BASE = String(window.API_BASE || "").trim();
+    const AUTH_FALLBACK_BASE = "https://sos-box-worker.anuphut.workers.dev";
+
+    function isProductionMode() {
+        if (typeof window.SOSBOX_IS_PRODUCTION === "boolean") {
+            return window.SOSBOX_IS_PRODUCTION;
+        }
+        const host = String(window.location.hostname || "").toLowerCase();
+        return !(host === "localhost" || host === "127.0.0.1" || host === "::1");
+    }
+
+    function isLocalhost() {
+        const host = String(window.location.hostname || "").toLowerCase();
+        return host === "localhost" || host === "127.0.0.1" || host === "::1";
+    }
 
     function apiUrl(path) {
         return API_BASE ? new URL(path, API_BASE).toString() : path;
@@ -37,11 +51,21 @@
     }
 
     async function request(path, body) {
-        const resp = await fetch(apiUrl(path), {
+        let resp = await fetch(apiUrl(path), {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(body),
         });
+
+        // Local dev server does not implement auth routes; fallback to worker auth API.
+        if (!API_BASE && isLocalhost() && resp.status === 404) {
+            resp = await fetch(new URL(path, AUTH_FALLBACK_BASE).toString(), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body),
+            });
+        }
+
         const data = await resp.json().catch(() => ({}));
         if (!resp.ok) {
             throw new Error(data?.error || `Request failed: ${resp.status}`);
@@ -59,6 +83,9 @@
     }
 
     async function register(email, password) {
+        if (isProductionMode()) {
+            throw new Error("Production mode: registration is disabled");
+        }
         const data = await request("/api/auth/register", {
             email: normalizeEmail(email),
             password: String(password || ""),
@@ -72,5 +99,6 @@
         register,
         logout,
         getSession,
+        isProductionMode,
     };
 })();

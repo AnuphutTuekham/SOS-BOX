@@ -22,4 +22,6 @@
 	}
 
 	window.API_BASE = override;
+	const host = String(window.location.hostname || "").toLowerCase();
+	window.SOSBOX_IS_PRODUCTION = !(host === "localhost" || host === "127.0.0.1" || host === "::1");
 })();

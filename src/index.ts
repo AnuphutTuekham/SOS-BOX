@@ -5,6 +5,9 @@ export interface Env {
 	sos_boxbd: D1Database;
 }
 
+const DEFAULT_ADMIN_EMAIL = "superadmin@sosbox.com";
+const DEFAULT_ADMIN_PASSWORD = "sosbox12345";
+
 function json(data: unknown, init: ResponseInit = {}) {
 	const headers = new Headers(init.headers);
 	headers.set("content-type", "application/json; charset=utf-8");
@@ -79,6 +82,14 @@ async function ensureSchema(db: D1Database) {
 		.prepare(
 			"CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL, created_at TEXT NOT NULL)"
 		)
+		.run();
+
+	const adminHash = await sha256Hex(DEFAULT_ADMIN_PASSWORD);
+	await db
+		.prepare(
+			"INSERT OR IGNORE INTO users (email, password_hash, created_at) VALUES (?,?,?)"
+		)
+		.bind(DEFAULT_ADMIN_EMAIL, adminHash, new Date().toISOString())
 		.run();
 
 	const columns = await db.prepare("PRAGMA table_info(sosbox)").all();
@@ -416,6 +427,12 @@ export default {
 
 		if (url.pathname === "/api/auth/register" && request.method === "POST") {
 			try {
+				const host = String(url.hostname || "").toLowerCase();
+				const isLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
+				if (!isLocal) {
+					return json({ error: "registration disabled in production" }, { status: 403 });
+				}
+
 				const body = await request.json().catch(() => null);
 				const email = normalizeEmail(body?.email);
 				const password = String(body?.password ?? "");

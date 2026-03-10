@@ -7,6 +7,7 @@
 
 	const {
 		$,
+		apiUrl,
 		apiGetBoxes,
 		apiUpsertBox,
 		apiDeleteAllBoxes,
@@ -22,6 +23,95 @@
 		clampNumber,
 		DEFAULT_LOAD_W,
 	} = window.SOSBoxUtils;
+
+	function parsePayload(payloadRaw) {
+		if (!payloadRaw) return {};
+		if (typeof payloadRaw === "object") return payloadRaw;
+		try {
+			return JSON.parse(String(payloadRaw));
+		} catch {
+			return {};
+		}
+	}
+
+	function firstPayloadItem(payload) {
+		if (Array.isArray(payload)) return payload[0] ?? {};
+		if (payload && Array.isArray(payload.positions)) return payload.positions[0] ?? {};
+		return payload && typeof payload === "object" ? payload : {};
+	}
+
+	function pickNumber(obj, keys) {
+		for (const key of keys) {
+			const n = Number(obj?.[key]);
+			if (Number.isFinite(n)) return n;
+		}
+		return null;
+	}
+
+	function pickText(obj, keys, fallback = "") {
+		for (const key of keys) {
+			const v = obj?.[key];
+			if (v !== undefined && v !== null && String(v).trim()) return String(v);
+		}
+		return fallback;
+	}
+
+	function normalizeBatteryPercent(v) {
+		const n = Number(v);
+		if (!Number.isFinite(n)) return 100;
+		return n <= 1 ? n * 100 : n;
+	}
+
+	function deriveBoxesFromRaw(rows) {
+		const byDevice = new Map();
+		for (const row of rows) {
+			const payload = firstPayloadItem(parsePayload(row.payload));
+			const lat = pickNumber(payload, ["lat", "latitude"]);
+			const lng = pickNumber(payload, ["lon", "lng", "longitude"]);
+			if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+
+			const deviceId = pickText(
+				{ ...payload, device_id: row.device_id ?? payload.device_id },
+				["device_id", "deviceId", "id", "deviceName"],
+				`raw-${row.id}`
+			);
+			if (byDevice.has(deviceId)) continue;
+
+			const batteryRaw = pickNumber(payload, [
+				"battery",
+				"batteryPercent",
+				"batteryLevel",
+				"batt",
+			]);
+			const batteryPercent = clampInt(normalizeBatteryPercent(batteryRaw), 0, 150);
+			const ts = Date.parse(String(row.received_at || "")) || Date.now();
+
+			byDevice.set(deviceId, {
+				id: String(deviceId),
+				lat,
+				lng,
+				name: pickText(payload, ["name", "deviceName"], `SOS BOX ${deviceId}`),
+				note: "auto from raw-input",
+				batteryPercent,
+				wifiCount: 0,
+				powerbankMah: 10000,
+				loadW: DEFAULT_LOAD_W,
+				lastSeen: ts,
+				createdAt: ts,
+			});
+		}
+		return Array.from(byDevice.values());
+	}
+
+	async function fetchRawDerivedBoxes(limit) {
+		const r = await fetch(apiUrl(`/api/raw-input?limit=${encodeURIComponent(String(limit))}`), {
+			cache: "no-store",
+		});
+		if (!r.ok) return [];
+		const data = await r.json().catch(() => []);
+		const rows = Array.isArray(data) ? data : [];
+		return deriveBoxesFromRaw(rows);
+	}
 
 	function on(elId, eventName, handler) {
 		const el = $(elId);
@@ -153,6 +243,9 @@
 				refreshInFlight = true;
 				try {
 					boxesData = await apiGetBoxes();
+					if (boxesData.length === 0) {
+						boxesData = await fetchRawDerivedBoxes(200);
+					}
 					renderBoxes();
 					updateSidebar();
 					updateStats();
