@@ -3,6 +3,12 @@
 
     const { $, apiGetBoxes, apiUrl, clampInt, showToast } = window.SOSBoxUtils;
 
+    function extractPrimaryPayload(payload) {
+        if (Array.isArray(payload)) return payload[0] ?? {};
+        if (payload && Array.isArray(payload.positions)) return payload.positions[0] ?? {};
+        return payload && typeof payload === "object" ? payload : {};
+    }
+
     function parsePayload(payloadRaw) {
         if (!payloadRaw) return {};
         if (typeof payloadRaw === "object") return payloadRaw;
@@ -38,6 +44,26 @@
         return "battery-high";
     }
 
+    function normalizeBatteryPercent(value) {
+        const battery = Number(value);
+        if (!Number.isFinite(battery)) return null;
+        return battery <= 1 ? battery * 100 : battery;
+    }
+
+    function pickDeviceId(row, payload) {
+        const primary = extractPrimaryPayload(payload);
+        return String(
+            row?.device_id ||
+                row?.deviceId ||
+                primary?.device_id ||
+                primary?.deviceId ||
+                primary?.device?.id ||
+                primary?.deviceName ||
+                primary?.id ||
+                "unknown"
+        );
+    }
+
     async function fetchRaw(limit) {
         const resp = await fetch(apiUrl(`/api/raw-input?limit=${encodeURIComponent(String(limit))}`), {
             cache: "no-store",
@@ -54,13 +80,20 @@
 
         try {
             const [boxes, rows] = await Promise.all([apiGetBoxes(), fetchRaw(100)]);
-            const boxBatteryById = new Map(boxes.map((b) => [String(b.id), clampInt(b.batteryPercent ?? 0, 0, 150)]));
+            const boxBatteryById = new Map();
+            for (const box of boxes) {
+                const battery = clampInt(box.batteryPercent ?? 0, 0, 150);
+                boxBatteryById.set(String(box.id), battery);
+                if (box.deviceId) boxBatteryById.set(String(box.deviceId), battery);
+                if (box.name) boxBatteryById.set(String(box.name), battery);
+            }
 
             const latestByDevice = new Map();
             for (const row of rows) {
-                const deviceId = String(row.device_id || row.deviceId || "unknown");
+                const payload = parsePayload(row.payload);
+                const deviceId = pickDeviceId(row, payload);
                 if (!latestByDevice.has(deviceId)) {
-                    latestByDevice.set(deviceId, row);
+                    latestByDevice.set(deviceId, { row, payload });
                 }
             }
 
@@ -72,14 +105,21 @@
             }
 
             tbody.innerHTML = rendered
-                .map(([deviceId, row]) => {
-                    const payload = parsePayload(row.payload);
-                    const speed = pickNumber(payload, ["speed", "spd"]);
+                .map(([deviceId, entry]) => {
+                    const row = entry.row;
+                    const payload = extractPrimaryPayload(entry.payload);
+                    const speed = pickNumber(payload, ["speed", "spd", "velocity"]);
                     const altitude = pickNumber(payload, ["altitude", "alt"]);
                     const gpsAccuracy = pickNumber(payload, ["accuracy", "gpsAccuracy", "hdop"]);
                     const activity = pickText(payload, ["activity", "motion", "state"]);
 
-                    const batteryFromPayload = pickNumber(payload, ["battery", "batteryPercent"]);
+                    const batteryRaw = pickNumber(payload, [
+                        "battery",
+                        "batteryPercent",
+                        "batteryLevel",
+                        "batt",
+                    ]);
+                    const batteryFromPayload = normalizeBatteryPercent(batteryRaw);
                     const battery = clampInt(
                         batteryFromPayload ?? boxBatteryById.get(deviceId) ?? 0,
                         0,

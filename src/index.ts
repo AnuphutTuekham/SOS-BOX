@@ -478,7 +478,7 @@ export default {
 				await ensureSchema(env.sos_boxbd);
 				const r = await env.sos_boxbd
 					.prepare(
-						"SELECT id, name, lat, lon, status, batt, wifi_count, created_at FROM sosbox ORDER BY id DESC"
+						"SELECT id, name, lat, lon, status, batt, wifi_count, created_at, device_id FROM sosbox ORDER BY id DESC"
 					)
 					.all();
 				const rows = (r.results ?? []).map((x: any) => ({
@@ -490,6 +490,7 @@ export default {
 					note: "",
 					powerbankMah: 10000,
 					loadW: 5,
+					deviceId: String(x.device_id ?? ""),
 					lastSeen: Date.parse(x.created_at) || Date.now(),
 					createdAt: Date.parse(x.created_at) || Date.now(),
 				}));

@@ -148,7 +148,7 @@ function json(res, status, payload) {
 function normalizeIncomingBox(input) {
 	if (!input || typeof input !== "object") return null;
 	const lat = Number(input.lat);
-	const lng = Number(input.lng);
+	const lng = Number(input.lng ?? input.lon);
 	if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
 
 	const now = Date.now();
@@ -157,6 +157,7 @@ function normalizeIncomingBox(input) {
 		id: String(input.id || crypto.randomUUID()),
 		lat,
 		lng,
+		deviceId: String(input.deviceId ?? input.device_id ?? ""),
 		name: String(input.name || "SOS BOX"),
 		note: String(input.note || ""),
 		batteryPercent: clampInt(input.batteryPercent ?? input.battery ?? 0, 0, 150),

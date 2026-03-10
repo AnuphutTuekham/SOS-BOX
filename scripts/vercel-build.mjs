@@ -15,7 +15,7 @@ const toCopy = [
 	"pic",
 	"favicon.svg",
 	"favicon.ico",
-	"senser.html",
+	"sensor.html",
 	"register.html",
 	"device.html"
 

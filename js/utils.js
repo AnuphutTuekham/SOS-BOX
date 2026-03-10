@@ -33,24 +33,35 @@
 	// Box data normalization
 	function normalizeBoxes(boxes) {
 		return boxes
-			.filter((b) => b && typeof b.lat === "number" && typeof b.lng === "number")
+			.filter((b) => {
+				if (!b) return false;
+				const lat = Number(b.lat);
+				const lng = Number(b.lng ?? b.lon);
+				return Number.isFinite(lat) && Number.isFinite(lng);
+			})
 			.map((b, idx) => {
+				const lat = Number(b.lat);
+				const lng = Number(b.lng ?? b.lon);
 				const batteryPercent = clampInt(b.batteryPercent ?? 100, 0, 150);
 				const powerbankMah = clampInt(b.powerbankMah ?? DEFAULT_POWERBANK_MAH, 0, 1000000);
 				const loadW = clampNumber(b.loadW ?? DEFAULT_LOAD_W, 0.1, 1000);
-				const createdAt = Number(b.createdAt || Date.now());
+				const createdAtValue = b.createdAt ?? Date.parse(b.created_at ?? "");
+				const createdAt = Number.isFinite(Number(createdAtValue))
+					? Number(createdAtValue)
+					: Date.now();
 				const wifiCount = clampInt(b.wifiCount ?? b.wifi_count ?? 0, 0, 100000);
 				return {
 					id: String(b.id || crypto.randomUUID()),
-					lat: b.lat,
-					lng: b.lng,
+					lat,
+					lng,
 					name: String(b.name || `SOS BOX #${idx + 1}`),
 					note: String(b.note || ""),
 					batteryPercent,
 					wifiCount,
 					powerbankMah,
 					loadW,
-					lastSeen: Number(b.lastSeen || createdAt),
+					deviceId: String(b.deviceId ?? b.device_id ?? ""),
+					lastSeen: Number(b.lastSeen ?? createdAt),
 					createdAt,
 				};
 			});
