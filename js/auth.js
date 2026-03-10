@@ -50,27 +50,66 @@
         window.localStorage.removeItem(STORAGE_KEY);
     }
 
-    async function request(path, body) {
-        let resp = await fetch(apiUrl(path), {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body),
-        });
+    function buildCandidatePaths(path) {
+        const normalized = String(path || "").trim() || "/";
+        const candidates = [normalized];
+        if (normalized.startsWith("/api/")) {
+            candidates.push(normalized.replace(/^\/api/, ""));
+        }
+        return candidates;
+    }
 
-        // Some hosts may not rewrite /api/auth/* correctly. Fallback to Worker auth API on 404.
-        if (resp.status === 404) {
-            resp = await fetch(new URL(path, AUTH_FALLBACK_BASE).toString(), {
+    function buildCandidateUrls(path) {
+        const urls = [];
+        const seen = new Set();
+        const paths = buildCandidatePaths(path);
+
+        for (const p of paths) {
+            const primary = apiUrl(p);
+            if (!seen.has(primary)) {
+                urls.push(primary);
+                seen.add(primary);
+            }
+            const fallback = new URL(p, AUTH_FALLBACK_BASE).toString();
+            if (!seen.has(fallback)) {
+                urls.push(fallback);
+                seen.add(fallback);
+            }
+        }
+
+        return urls;
+    }
+
+    async function request(path, body) {
+        const payload = JSON.stringify(body);
+        const urls = buildCandidateUrls(path);
+        let lastResp = null;
+        let lastData = {};
+
+        for (const url of urls) {
+            const resp = await fetch(url, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(body),
+                body: payload,
             });
+
+            const data = await resp.json().catch(() => ({}));
+            lastResp = resp;
+            lastData = data;
+
+            // Try next URL only when endpoint is not found.
+            if (resp.status === 404) {
+                continue;
+            }
+
+            if (!resp.ok) {
+                throw new Error(data?.error || `Request failed: ${resp.status}`);
+            }
+            return data;
         }
 
-        const data = await resp.json().catch(() => ({}));
-        if (!resp.ok) {
-            throw new Error(data?.error || `Request failed: ${resp.status}`);
-        }
-        return data;
+        const status = lastResp?.status || 404;
+        throw new Error(lastData?.error || `Auth endpoint not found (HTTP ${status})`);
     }
 
     async function login(email, password) {
