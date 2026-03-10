@@ -322,9 +322,12 @@
 
 			function updateStats() {
 				const c = map.getCenter();
-				$("centerLatLng").textContent = formatLatLng(c);
-				$("zoom").textContent = String(map.getZoom());
-				$("boxCount").textContent = String(boxesData.length);
+				const centerEl = $("centerLatLng");
+				if (centerEl) centerEl.textContent = formatLatLng(c);
+				const zoomEl = $("zoom");
+				if (zoomEl) zoomEl.textContent = String(map.getZoom());
+				const boxCountEl = $("boxCount");
+				if (boxCountEl) boxCountEl.textContent = String(boxesData.length);
 
 				const offlineAfterMin = getOfflineAfterMin();
 				let online = 0;
@@ -336,7 +339,8 @@
 					else if (s === "low") low++;
 					else offline++;
 				}
-				$("statusCounts").textContent = `${online} / ${offline} / ${low}`;
+				const statusCountsEl = $("statusCounts");
+				if (statusCountsEl) statusCountsEl.textContent = `${online} / ${offline} / ${low}`;
 			}
 
 			function updateSidebar() {
@@ -347,7 +351,7 @@
 				if (boxesData.length === 0) {
 					const empty = document.createElement("div");
 					empty.className = "sub";
-					empty.textContent = 'ยังไม่มี SOS BOX — กด "เพิ่ม/แก้ไข SOS BOX" เพื่อเพิ่มรายการใหม่';
+					empty.textContent = "ยังไม่มี SOS BOX";
 					list.appendChild(empty);
 					return;
 				}
