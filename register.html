@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SOS BOX - Register</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -137,6 +138,33 @@
             border-color: #007bff;
             background: rgba(0, 123, 255, 0.2);
         }
+
+        .btn-row {
+            margin-top: 18px;
+            width: 100%;
+            max-width: 330px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 30px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .msg {
+            margin-top: 10px;
+            color: #cbd5e0;
+            font-size: 13px;
+            min-height: 20px;
+        }
     </style>
 </head>
 <body>
@@ -151,15 +179,20 @@
 
         <div class="form-group">
             <label>Email</label>
-            <input type="email" placeholder="example@mail.com">
+            <input id="email" type="email" placeholder="example@mail.com">
         </div>
 
         <div class="form-group">
             <label>Password</label>
-            <input type="password" placeholder="••••••••">
+            <input id="password" type="password" placeholder="••••••••">
         </div>
 
-        <button type="button" class="btn-submit" onclick="location.href='dashboard.html'">ยืนยันการลงทะเบียน</button>
+        <button type="button" class="btn-submit" id="btnLogin">เข้าสู่ระบบ</button>
+        <div class="btn-row">
+            <button type="button" class="btn-secondary" id="btnRegister">สมัครสมาชิก</button>
+            <button type="button" class="btn-secondary" id="btnLogout">ออกจากระบบ</button>
+        </div>
+        <div class="msg" id="authMessage"></div>
         <div class="quick-links">
             <a href="dashboard.html">Dashboard</a>
             <a href="device.html">Devices</a>
@@ -167,6 +200,45 @@
         </div>
     </div>
 
+    <script src="config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        (function () {
+            const emailEl = document.getElementById("email");
+            const passwordEl = document.getElementById("password");
+            const msgEl = document.getElementById("authMessage");
+
+            function setMessage(text, isError) {
+                msgEl.textContent = text;
+                msgEl.style.color = isError ? "#fda4af" : "#cbd5e0";
+            }
+
+            document.getElementById("btnLogin").addEventListener("click", async function () {
+                try {
+                    await window.SOSBoxAuth.login(emailEl.value, passwordEl.value);
+                    setMessage("เข้าสู่ระบบสำเร็จ", false);
+                    window.location.href = "dashboard.html";
+                } catch (e) {
+                    setMessage(e.message || "เข้าสู่ระบบไม่สำเร็จ", true);
+                }
+            });
+
+            document.getElementById("btnRegister").addEventListener("click", async function () {
+                try {
+                    await window.SOSBoxAuth.register(emailEl.value, passwordEl.value);
+                    setMessage("สมัครสมาชิกสำเร็จ", false);
+                    window.location.href = "dashboard.html";
+                } catch (e) {
+                    setMessage(e.message || "สมัครสมาชิกไม่สำเร็จ", true);
+                }
+            });
+
+            document.getElementById("btnLogout").addEventListener("click", function () {
+                window.SOSBoxAuth.logout();
+                setMessage("ออกจากระบบแล้ว", false);
+            });
+        })();
+    </script>
     <script src="js/nav-active.js"></script>
 
 </body>

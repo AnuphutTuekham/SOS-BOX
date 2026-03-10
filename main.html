@@ -5,6 +5,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<title>SOSBOX — หน้าเว็บหลัก</title>
 		<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
 
 		<!-- Leaflet (OpenStreetMap) -->
 		<link
@@ -36,88 +37,15 @@
 	<body>
 		<div class="app">
 			<aside class="sidebar">
-				<div class="brand">
-					<div class="dot" aria-hidden="true"></div>
-					<div>
-						<h1>SOSBOX</h1>
-						<div class="sub">หน้าเว็บหลักสำหรับติดตามสถานะและตำแหน่ง SOS BOX</div>
-						<div class="sub" data-testid="group-info">กลุ่ม: กลุ่ม-01 | สมาชิก: 67022995 อนุภัทร ตื้อคำ</div>
-						<div class="sub" >ใช้ traccar client จำลองเป็นกล่อง wifi ส่งข้อมูลไปที่ https://sos-box-worker.anuphut.workers.dev </div>
-					</div>
+				<h2><i class="fas fa-wave-square"></i> Lab Monitor</h2>
+				<div class="sidebar-nav">
+					<a class="nav-item" href="main.html"><i class="fas fa-chart-line"></i> Overview</a>
+					<a class="nav-item" href="dashboard.html"><i class="fas fa-th-large"></i> DashBoard</a>
+					<a class="nav-item" href="device.html"><i class="fas fa-box"></i> Devices</a>
+					<a class="nav-item" href="raw-input.html"><i class="fas fa-database"></i> Raw Sensor Data</a>
+					<a class="nav-item" href="senser.html"><i class="fas fa-microchip"></i> Sensor Data</a>
 				</div>
 
-				<div class="card">
-					<label>ภาพรวมระบบ</label>
-					<p class="sub mt-6">
-						ดูตำแหน่งทั้งหมดแบบเรียลไทม์ จัดการสถานะ และอัปเดตข้อมูลกล่องได้จากหน้าเดียว
-					</p>
-					<div class="spacer-10"></div>
-					<div class="btns">
-						<button class="primary" id="btnLocate" type="button">เริ่มติดตามตำแหน่ง</button>
-					</div>
-					<p class="sub mt-8">
-						ใช้เมนู “เพิ่ม/แก้ไข SOS BOX” ด้านล่างเพื่อจัดการข้อมูล
-					</p>
-				</div>
-
-				<div class="card">
-					<div class="btns">
-						<button id="btnCopyCenter" type="button">คัดลอกพิกัดกึ่งกลาง</button>
-						<button id="btnShare" type="button">แชร์ลิงก์ตำแหน่ง</button>
-					</div>
-				</div>
-
-				<div class="card">
-					<div class="stats">
-						<div class="stat">
-							<div class="k">พิกัดกึ่งกลาง (lat, lng)</div>
-							<div class="v" id="centerLatLng">-</div>
-						</div>
-						<div class="stat">
-							<div class="k">ซูม</div>
-							<div class="v" id="zoom">-</div>
-						</div>
-						<div class="stat">
-							<div class="k">จำนวน SOS BOX</div>
-							<div class="v" id="boxCount">0</div>
-						</div>
-						<div class="stat">
-							<div class="k">สถานะ (ออนไลน์/ออฟไลน์/แบตต่ำ)</div>
-							<div class="v" id="statusCounts">0 / 0 / 0</div>
-						</div>
-					</div>
-				</div>
-
-				<div class="card">
-					<label>ตัวกรอง</label>
-					<div class="row">
-						<div>
-							<label>แสดงสถานะ</label>
-							<select id="statusFilter">
-								<option value="all" selected>ทั้งหมด</option>
-								<option value="online">ออนไลน์</option>
-								<option value="offline">ออฟไลน์</option>
-								<option value="low">แบตต่ำ</option>
-							</select>
-						</div>
-						<div>
-							<label>ถือว่าออฟไลน์ถ้าเกิน (นาที)</label>
-							<input id="offlineAfterMin" type="number" min="1" step="1" value="30" />
-						</div>
-					</div>
-					<p class="sub mt-10">
-						หมายเหตุ: ระบบจะ “ประเมินสถานะ” จากเวลา last seen + แบตเตอรี่ (แก้ได้ด้วยการอัปเดต last seen)
-					</p>
-				</div>
-
-				<div class="card">
-					<label>การจัดการ</label>
-					<div class="btns">
-						<button class="primary" id="btnOpenEditor" type="button">เพิ่ม/แก้ไข SOS BOX</button>
-						<button id="btnOpenDashboard" type="button">ไปหน้า Dashboard</button>
-						<button class="danger" id="btnClearAll" type="button">ลบทั้งหมด</button>
-					</div>
-				</div>
 
 				<div class="card">
 					<label>รายการ SOS BOX</label>
@@ -133,5 +61,6 @@
 		</div>
   
 
+		<script src="js/nav-active.js"></script>
 	</body>
 </html>

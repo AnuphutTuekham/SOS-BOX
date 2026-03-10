@@ -75,6 +75,12 @@ async function ensureSchema(db: D1Database) {
 		)
 		.run();
 
+	await db
+		.prepare(
+			"CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, email TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL, created_at TEXT NOT NULL)"
+		)
+		.run();
+
 	const columns = await db.prepare("PRAGMA table_info(sosbox)").all();
 	const names = new Set((columns.results ?? []).map((c: any) => String(c.name)));
 	if (!names.has("device_id")) {
@@ -83,6 +89,17 @@ async function ensureSchema(db: D1Database) {
 	if (!names.has("wifi_count")) {
 		await db.prepare("ALTER TABLE sosbox ADD COLUMN wifi_count INTEGER DEFAULT 0").run();
 	}
+}
+
+async function sha256Hex(value: string): Promise<string> {
+	const bytes = new TextEncoder().encode(value);
+	const digest = await crypto.subtle.digest("SHA-256", bytes);
+	const arr = Array.from(new Uint8Array(digest));
+	return arr.map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+function normalizeEmail(value: unknown): string {
+	return String(value ?? "").trim().toLowerCase();
 }
 
 function payloadToText(payload: unknown): string {
@@ -392,6 +409,64 @@ export default {
 			try {
 				await env.sos_boxbd.prepare("DELETE FROM traccar_raw_input").run();
 				return json({ ok: true });
+			} catch (e: any) {
+				return json({ error: e?.message || String(e) }, { status: 500 });
+			}
+		}
+
+		if (url.pathname === "/api/auth/register" && request.method === "POST") {
+			try {
+				const body = await request.json().catch(() => null);
+				const email = normalizeEmail(body?.email);
+				const password = String(body?.password ?? "");
+				if (!email || !email.includes("@") || password.length < 4) {
+					return json({ error: "invalid email or password" }, { status: 400 });
+				}
+
+				const exists = await env.sos_boxbd
+					.prepare("SELECT id FROM users WHERE email = ? LIMIT 1")
+					.bind(email)
+					.first();
+				if (exists?.id) {
+					return json({ error: "email already exists" }, { status: 409 });
+				}
+
+				const passwordHash = await sha256Hex(password);
+				await env.sos_boxbd
+					.prepare("INSERT INTO users (email, password_hash, created_at) VALUES (?,?,?)")
+					.bind(email, passwordHash, new Date().toISOString())
+					.run();
+
+				return json({ ok: true, email });
+			} catch (e: any) {
+				return json({ error: e?.message || String(e) }, { status: 500 });
+			}
+		}
+
+		if (url.pathname === "/api/auth/login" && request.method === "POST") {
+			try {
+				const body = await request.json().catch(() => null);
+				const email = normalizeEmail(body?.email);
+				const password = String(body?.password ?? "");
+				if (!email || !password) {
+					return json({ error: "missing email or password" }, { status: 400 });
+				}
+
+				const user = await env.sos_boxbd
+					.prepare("SELECT id, email, password_hash FROM users WHERE email = ? LIMIT 1")
+					.bind(email)
+					.first<{ id: number; email: string; password_hash: string }>();
+
+				if (!user?.id) {
+					return json({ error: "invalid credentials" }, { status: 401 });
+				}
+
+				const passwordHash = await sha256Hex(password);
+				if (passwordHash !== user.password_hash) {
+					return json({ error: "invalid credentials" }, { status: 401 });
+				}
+
+				return json({ ok: true, email: user.email });
 			} catch (e: any) {
 				return json({ error: e?.message || String(e) }, { status: 500 });
 			}

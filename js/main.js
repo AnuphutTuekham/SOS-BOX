@@ -437,16 +437,6 @@
 				showToast("คัดลอกลิงก์แชร์แล้ว");
 			});
 
-			on("statusFilter", "change", () => {
-				renderBoxes();
-				updateSidebar();
-			});
-
-			on("offlineAfterMin", "change", () => {
-				renderBoxes();
-				updateSidebar();
-			});
-
 			await refreshBoxes({ silent: true });
 			window.setInterval(() => {
 				void refreshBoxes({ silent: true });
@@ -455,12 +445,6 @@
 			const focusId = new URL(window.location.href).searchParams.get("focusId");
 			if (focusId) window.setTimeout(() => selectBox(focusId, true), 120);
 
-			if (boxesData.length === 0) {
-				showToast(
-					"พร้อมรับข้อมูลจาก SOS BOX จริง — เมื่ออุปกรณ์ส่งข้อมูลจะขึ้นบนแผนที่อัตโนมัติ",
-					3600
-				);
-			}
 		})();
 	});
 })();

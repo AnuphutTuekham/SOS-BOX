@@ -77,12 +77,11 @@
 <body>
     <div class="sidebar">
         <h2><i class="fas fa-wave-square"></i> Lab Monitor</h2>
-        <a class="nav-item" href="dashboard.html"><i class="fas fa-th-large"></i> DashBoard</a>
         <a class="nav-item" href="main.html"><i class="fas fa-chart-line"></i> Overview</a>
+        <a class="nav-item" href="dashboard.html"><i class="fas fa-th-large"></i> DashBoard</a>
         <a class="nav-item" href="device.html"><i class="fas fa-box"></i> Devices</a>
         <a class="nav-item" href="raw-input.html"><i class="fas fa-database"></i> Raw Sensor Data</a>
         <a class="nav-item" href="senser.html"><i class="fas fa-microchip"></i> Sensor Data</a>
-        <a class="nav-item" href="register.html"><i class="fas fa-envelope"></i> Register</a>
     </div>
 
     <div class="main-content">
@@ -91,7 +90,12 @@
                 <h1 class="m-0">Sensor Data</h1>
                 <small class="page-title">Dashboard > Sensor Data</small>
             </div>
-            <div class="status-line">● Server Online</div>
+            <div class="top-actions">
+                <span class="server-status-line">● Server Online</span>
+                <a class="profile-link-icon" href="register.html" title="Account" data-auth-menu>
+                    <i class="fas fa-user"></i>
+                </a>
+            </div>
         </div>
 
         <div class="table-card">
@@ -111,41 +115,18 @@
                         <th>Activity</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>001</td>
-                        <td><span class="battery-pill battery-high">100%</span></td>
-                        <td>10.0</td>
-                        <td>455.99</td>
-                        <td>5.35</td>
-                        <td>In Vehicle</td>
-                    </tr>
-                    <tr>
-                        <td>002</td>
-                        <td><span class="battery-pill battery-mid">60%</span></td>
-                        <td>5.85</td>
-                        <td>478.99</td>
-                        <td>2.29</td>
-                        <td>In Vehicle</td>
-                    </tr>
-                    <tr>
-                        <td>003</td>
-                        <td><span class="battery-pill battery-low">20%</span></td>
-                        <td>0.35</td>
-                        <td>490.12</td>
-                        <td>1.10</td>
-                        <td>Still</td>
-                    </tr>
-                </tbody>
+                <tbody id="sensorTableBody"></tbody>
             </table>
 
-            <div class="pagination-row">
-                <span>1 - 3 of 3</span>
-                <span>[ 1 ]</span>
-            </div>
+            <div class="pagination-row" id="sensorPagination"></div>
         </div>
     </div>
 
+    <script src="config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/auth-menu.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/senser.js" defer></script>
     <script src="js/nav-active.js"></script>
 </body>
 </html>
