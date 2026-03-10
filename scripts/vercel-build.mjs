@@ -17,8 +17,8 @@ const toCopy = [
 	"favicon.ico",
 	"senser.html",
 	"register.html",
-	"devices.html"
-	
+	"device.html"
+
 ];
 
 async function rmDir(dir) {

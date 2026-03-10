@@ -486,9 +486,6 @@ body.register-page .btn-register {
 	transition: 0.3s;
 	display: none;
 }
-	border-radius: 999px;
-	
-
 
 .badge.online {
 	border-color: rgba(86, 242, 199, 0.35);
