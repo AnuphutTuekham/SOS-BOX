@@ -57,8 +57,8 @@
             body: JSON.stringify(body),
         });
 
-        // Local dev server does not implement auth routes; fallback to worker auth API.
-        if (!API_BASE && isLocalhost() && resp.status === 404) {
+        // Some hosts may not rewrite /api/auth/* correctly. Fallback to Worker auth API on 404.
+        if (resp.status === 404) {
             resp = await fetch(new URL(path, AUTH_FALLBACK_BASE).toString(), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
