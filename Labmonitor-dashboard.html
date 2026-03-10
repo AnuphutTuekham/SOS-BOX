@@ -14,7 +14,7 @@
         <div class="nav-item active"><i class="fas fa-th-large"></i> DashBoard</div>
         <div class="nav-item"><i class="fas fa-chart-line"></i> Overview</div>
         <div class="nav-item"><i class="fas fa-box"></i> Devices</div>
-        <div class="nav-item" onclick="window.location.href='raw-input.html'" style="cursor:pointer;"><i class="fas fa-database"></i> Raw Sensor Data</div>
+        <div class="nav-item cursor-pointer" id="btnOpenRawInput"><i class="fas fa-database"></i> Raw Sensor Data</div>
         <div class="nav-item"><i class="fas fa-microchip"></i> Sensor Data</div>
         <div class="nav-item"><i class="fas fa-envelope"></i> Email Alerts</div>
     </div>
@@ -22,15 +22,15 @@
     <div class="main-content">
         <div class="header-top">
             <div>
-                <h1 style="margin:0;">Lab Monitor Dashboard</h1>
-                <small style="color: var(--text-muted);">Dashboard > Lab Monitor</small>
+                <h1 class="m-0">Lab Monitor Dashboard</h1>
+                <small class="page-title">Dashboard > Lab Monitor</small>
             </div>
             <div class="user-profile">
-                <span style="color: var(--accent-green); font-size: 0.8rem;">● Server Online</span>
+                <span class="server-status">● Server Online</span>
                 <i class="fas fa-user-circle fa-2x"></i>
                 <div>
-                    <div style="font-size: 0.9rem;">MaMeow</div>
-                    <div style="font-size: 0.7rem; color: var(--text-muted);">mameow@gmail.com</div>
+                    <div class="user-name">MaMeow</div>
+                    <div class="user-email">mameow@gmail.com</div>
                 </div>
             </div>
         </div>
@@ -56,9 +56,9 @@
 
         <div class="data-container">
             <div class="table-card">
-                <div style="display: flex; justify-content: space-between;">
+                <div class="flex-between">
                     <span><i class="fas fa-sync"></i> Latest Readings</span>
-                    <span class="status-tag" style="background: var(--accent-blue);">Real-time</span>
+                    <span class="status-tag status-tag-blue">Real-time</span>
                 </div>
                 <table>
                     <thead>
@@ -75,14 +75,16 @@
                 </table>
             </div>
 
-            <div class="critical-card" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
-                <h4 style="align-self: flex-start; margin: 0;">Critical Devices</h4>
-                <div style="margin-top: 50px;">
-                    <p style="color: var(--text-muted);">All systems clear ✨</p>
+            <div class="critical-card flex-column flex-center text-center">
+                <h4 class="m-0">Critical Devices</h4>
+                <div class="mt-50">
+                    <p class="critical-card-empty">All systems clear ✨</p>
                 </div>
             </div>
         </div>
     </div>
-    <script src="js/app.js" defer></script>
+    <script src="config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/dashboard.js" defer></script>
 </body>
 </html>

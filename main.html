@@ -30,7 +30,8 @@
 			defer
 		></script>
 		<script src="config.js"></script>
-		<script src="js/app.js" defer></script>
+		<script src="js/utils.js"></script>
+		<script src="js/main.js" defer></script>
 	</head>
 	<body>
 		<div class="app">
@@ -40,20 +41,21 @@
 					<div>
 						<h1>SOSBOX</h1>
 						<div class="sub">หน้าเว็บหลักสำหรับติดตามสถานะและตำแหน่ง SOS BOX</div>
+						<div class="sub" data-testid="group-info">กลุ่ม: กลุ่ม-01 | สมาชิก: 67022995 อนุภัทร ตื้อคำ</div>
 						<div class="sub" >ใช้ traccar client จำลองเป็นกล่อง wifi ส่งข้อมูลไปที่ https://sos-box-worker.anuphut.workers.dev </div>
 					</div>
 				</div>
 
 				<div class="card">
 					<label>ภาพรวมระบบ</label>
-					<p class="sub" style="margin-top: 6px">
+					<p class="sub mt-6">
 						ดูตำแหน่งทั้งหมดแบบเรียลไทม์ จัดการสถานะ และอัปเดตข้อมูลกล่องได้จากหน้าเดียว
 					</p>
-					<div style="height: 10px"></div>
+					<div class="spacer-10"></div>
 					<div class="btns">
 						<button class="primary" id="btnLocate" type="button">เริ่มติดตามตำแหน่ง</button>
 					</div>
-					<p class="sub" style="margin-top: 8px">
+					<p class="sub mt-8">
 						ใช้เมนู “เพิ่ม/แก้ไข SOS BOX” ด้านล่างเพื่อจัดการข้อมูล
 					</p>
 				</div>
@@ -103,7 +105,7 @@
 							<input id="offlineAfterMin" type="number" min="1" step="1" value="30" />
 						</div>
 					</div>
-					<p class="sub" style="margin-top: 10px">
+					<p class="sub mt-10">
 						หมายเหตุ: ระบบจะ “ประเมินสถานะ” จากเวลา last seen + แบตเตอรี่ (แก้ได้ด้วยการอัปเดต last seen)
 					</p>
 				</div>
@@ -112,7 +114,7 @@
 					<label>การจัดการ</label>
 					<div class="btns">
 						<button class="primary" id="btnOpenEditor" type="button">เพิ่ม/แก้ไข SOS BOX</button>
-						<button id="btnOpenDashboard" type="button" onclick="window.location.href='Labmonitor-dashboard.html'">ไปหน้า Dashboard</button>
+						<button id="btnOpenDashboard" type="button">ไปหน้า Dashboard</button>
 						<button class="danger" id="btnClearAll" type="button">ลบทั้งหมด</button>
 					</div>
 				</div>
