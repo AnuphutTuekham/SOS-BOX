@@ -46,6 +46,7 @@ body {
     align-items: center;
     gap: 12px;
     color: var(--text-muted);
+    text-decoration: none;
 }
 
 .nav-item.active, .nav-item:hover {

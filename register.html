@@ -116,12 +116,33 @@
         .btn-submit:active {
             transform: translateY(0);
         }
+
+        .quick-links {
+            margin-top: 16px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .quick-links a {
+            color: #cbd5e0;
+            text-decoration: none;
+            font-size: 13px;
+            padding: 6px 10px;
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 999px;
+        }
+
+        .quick-links a.active {
+            color: white;
+            border-color: #007bff;
+            background: rgba(0, 123, 255, 0.2);
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="top-label">register</div>
+        <div class="top-label">Login</div>
 
         <div class="logo-section">
             <div class="cube-icon"></div>
@@ -138,8 +159,15 @@
             <input type="password" placeholder="••••••••">
         </div>
 
-        <button type="submit" class="btn-submit">ยืนยันการลงทะเบียน</button>
+        <button type="button" class="btn-submit" onclick="location.href='dashboard.html'">ยืนยันการลงทะเบียน</button>
+        <div class="quick-links">
+            <a href="dashboard.html">Dashboard</a>
+            <a href="device.html">Devices</a>
+            <a href="senser.html">Sensor</a>
+        </div>
     </div>
+
+    <script src="js/nav-active.js"></script>
 
 </body>
 </html>

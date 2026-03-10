@@ -388,7 +388,7 @@
 			});
 
 			on("btnOpenDashboard", "click", () => {
-				window.location.href = "Labmonitor-dashboard.html";
+				window.location.href = "dashboard.html";
 			});
 
 			on("btnClearAll", "click", () => {

@@ -97,7 +97,7 @@
 		});
 
 		$("btnOpenDashboard")?.addEventListener("click", () => {
-			window.location.href = "Labmonitor-dashboard.html";
+			window.location.href = "dashboard.html";
 		});
 
 		$("btnClearRaw")?.addEventListener("click", () => {

@@ -1,118 +1,110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SOS BOX - Sensor Data</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <link rel="stylesheet" href="css/dashboard.css" />
     <style>
-        :root {
-            --bg-dark: #0a0e23;
-            --sidebar-bg: #111633;
-            --card-blue: #161b3d;
-            --accent-blue: #007bff;
-            --text-gray: #a0aec0;
-            --border-color: #2d3748;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Kanit', sans-serif; }
-
-        body { background-color: #cccccc; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-
-        .dashboard-container {
-            width: 1200px;
-            height: 750px;
-            background-color: var(--bg-dark);
-            display: grid;
-            grid-template-columns: 240px 1fr;
-            color: white;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-        }
-
-        /* --- Sidebar --- */
-        .sidebar { background-color: var(--sidebar-bg); padding: 20px 0; border-right: 1px solid var(--border-color); }
-        .sidebar-header { padding: 0 20px 30px; display: flex; align-items: center; justify-content: space-between; }
-        .menu-item { padding: 12px 25px; display: flex; align-items: center; color: var(--text-gray); cursor: pointer; }
-        .menu-item.active {
-            background: linear-gradient(90deg, rgba(0,123,255,0.1) 0%, rgba(0,0,0,0) 100%);
-            color: white; border-left: 4px solid var(--accent-blue);
-        }
-
-        /* --- Main Content --- */
-        .main-content { padding: 30px; position: relative; }
-        .header-top { display: flex; justify-content: flex-end; align-items: center; margin-bottom: 30px; font-size: 12px; }
-        .user-profile { display: flex; align-items: center; margin-left: 20px; }
-        .user-avatar { width: 35px; height: 35px; background: #ddd; border-radius: 50%; margin-right: 10px; }
-
-        /* --- Table Styling --- */
-        .table-container {
-            background: var(--card-blue);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 10px;
+        .table-card {
             margin-top: 20px;
         }
-        .data-table { width: 100%; border-collapse: collapse; text-align: center; }
-        .data-table th { padding: 20px 10px; color: var(--text-gray); font-weight: 400; font-size: 13px; border-bottom: 1px solid var(--border-color); }
-        .data-table td { padding: 15px 10px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-        /* Battery Level Pills */
-        .battery {
-            display: inline-block;
-            width: 80px;
-            padding: 4px 0;
-            border-radius: 20px;
-            font-size: 11px;
-            border-width: 1px;
-            border-style: solid;
+        .sensor-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
         }
-        .battery.high { background: rgba(40, 167, 69, 0.2); color: #28a745; border-color: #28a745; }
-        .battery.mid { background: rgba(253, 126, 20, 0.2); color: #fd7e14; border-color: #fd7e14; }
-        .battery.low { background: rgba(220, 53, 69, 0.2); color: #dc3545; border-color: #dc3545; }
 
-        .pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; color: var(--text-gray); font-size: 13px; }
+        .sensor-table th {
+            text-align: left;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 12px 10px;
+            border-bottom: 1px solid #2d334a;
+        }
+
+        .sensor-table td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #252c45;
+            font-size: 0.9rem;
+        }
+
+        .battery-pill {
+            display: inline-block;
+            min-width: 70px;
+            text-align: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            border: 1px solid;
+        }
+
+        .battery-high {
+            color: #4ade80;
+            border-color: #166534;
+            background: rgba(22, 101, 52, 0.2);
+        }
+
+        .battery-mid {
+            color: #facc15;
+            border-color: #854d0e;
+            background: rgba(133, 77, 14, 0.2);
+        }
+
+        .battery-low {
+            color: #f87171;
+            border-color: #991b1b;
+            background: rgba(153, 27, 27, 0.2);
+        }
+
+        .status-line {
+            color: #4ade80;
+            font-size: 0.85rem;
+        }
+
+        .pagination-row {
+            margin-top: 14px;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            display: flex;
+            justify-content: space-between;
+        }
     </style>
 </head>
 <body>
+    <div class="sidebar">
+        <h2><i class="fas fa-wave-square"></i> Lab Monitor</h2>
+        <a class="nav-item" href="dashboard.html"><i class="fas fa-th-large"></i> DashBoard</a>
+        <a class="nav-item" href="main.html"><i class="fas fa-chart-line"></i> Overview</a>
+        <a class="nav-item" href="device.html"><i class="fas fa-box"></i> Devices</a>
+        <a class="nav-item" href="raw-input.html"><i class="fas fa-database"></i> Raw Sensor Data</a>
+        <a class="nav-item" href="senser.html"><i class="fas fa-microchip"></i> Sensor Data</a>
+        <a class="nav-item" href="register.html"><i class="fas fa-envelope"></i> Register</a>
+    </div>
 
-<div class="dashboard-container">
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <h3>Lab Monitor</h3>
-            <span>&larr;</span>
-        </div>
-        <ul style="list-style:none;">
-            <li class="menu-item">DashBoard</li>
-            <li class="menu-item">Overview</li>
-            <li class="menu-item">Devices</li>
-            <li class="menu-item">Raw Sensor Data</li>
-            <li class="menu-item active">Sensor Data</li>
-            <li class="menu-item">Email Alerts</li>
-        </ul>
-    </aside>
-
-    <main class="main-content">
+    <div class="main-content">
         <div class="header-top">
-            <span style="color: #28a745;">● Server Online</span>
-            <div class="user-profile">
-                <div class="user-avatar"></div>
-                <div>
-                    <div style="font-size: 13px;">MaMeow</div>
-                    <div style="font-size: 10px; color: var(--text-gray);">mameow@gmail.com</div>
-                </div>
+            <div>
+                <h1 class="m-0">Sensor Data</h1>
+                <small class="page-title">Dashboard > Sensor Data</small>
             </div>
+            <div class="status-line">● Server Online</div>
         </div>
 
-        <h2 style="font-weight: 500;">Sensor Data</h2>
-        <p style="color: var(--text-gray); font-size: 14px;">Sensor Data</p>
+        <div class="table-card">
+            <div class="flex-between">
+                <span><i class="fas fa-microchip"></i> Latest Sensor Readings</span>
+                <span class="status-tag status-tag-blue">Real-time</span>
+            </div>
 
-        <div class="table-container">
-            <table class="data-table">
+            <table class="sensor-table">
                 <thead>
                     <tr>
                         <th>Device ID</th>
-                        <th>Batterry</th>
+                        <th>Battery</th>
                         <th>Speed</th>
                         <th>Altitude</th>
                         <th>GPS Accuracy</th>
@@ -122,7 +114,7 @@
                 <tbody>
                     <tr>
                         <td>001</td>
-                        <td><span class="battery high">100%</span></td>
+                        <td><span class="battery-pill battery-high">100%</span></td>
                         <td>10.0</td>
                         <td>455.99</td>
                         <td>5.35</td>
@@ -130,11 +122,30 @@
                     </tr>
                     <tr>
                         <td>002</td>
-                        <td><span class="battery mid">60%</span></td>
+                        <td><span class="battery-pill battery-mid">60%</span></td>
                         <td>5.85</td>
                         <td>478.99</td>
                         <td>2.29</td>
                         <td>In Vehicle</td>
                     </tr>
                     <tr>
-                        <td>0
+                        <td>003</td>
+                        <td><span class="battery-pill battery-low">20%</span></td>
+                        <td>0.35</td>
+                        <td>490.12</td>
+                        <td>1.10</td>
+                        <td>Still</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="pagination-row">
+                <span>1 - 3 of 3</span>
+                <span>[ 1 ]</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/nav-active.js"></script>
+</body>
+</html>

@@ -6,7 +6,7 @@ const OUT_DIR = path.resolve(ROOT, "public");
 
 const toCopy = [
 	"main.html",
-	"Labmonitor-dashboard.html",
+	"dashboard.html",
 	"edit.html",
 	"raw-input.html",
 	"config.js",
@@ -15,6 +15,10 @@ const toCopy = [
 	"pic",
 	"favicon.svg",
 	"favicon.ico",
+	"senser.html",
+	"register.html",
+	"devices.html"
+	
 ];
 
 async function rmDir(dir) {

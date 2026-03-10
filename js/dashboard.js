@@ -1,5 +1,5 @@
 /**
- * Dashboard logic for Labmonitor-dashboard.html
+ * Dashboard logic for dashboard.html
  * Displays device status and sensor data
  */
 (() => {
