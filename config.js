@@ -20,8 +20,11 @@
 	if (!override) {
 		override = String(window.SOSBOX_API_BASE || "").trim();
 	}
+	const host = String(window.location.hostname || "").toLowerCase();
+	if (!override && host !== "localhost" && host !== "127.0.0.1" && host !== "::1") {
+		override = "https://sos-box-worker.anuphut.workers.dev";
+	}
 
 	window.API_BASE = override;
-	const host = String(window.location.hostname || "").toLowerCase();
 	window.SOSBOX_IS_PRODUCTION = !(host === "localhost" || host === "127.0.0.1" || host === "::1");
 })();
