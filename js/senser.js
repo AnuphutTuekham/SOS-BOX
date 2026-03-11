@@ -56,6 +56,26 @@
                 if (qLon !== null) merged.lon = qLon;
                 if (qBatt !== null) merged.battery = qBatt;
             }
+
+            const coords = location.coords && typeof location.coords === "object" ? location.coords : null;
+            if (coords) {
+                if (coords.latitude !== undefined) merged.latitude = coords.latitude;
+                if (coords.longitude !== undefined) merged.longitude = coords.longitude;
+                if (coords.speed !== undefined) merged.speed = coords.speed;
+                if (coords.altitude !== undefined) merged.altitude = coords.altitude;
+                if (coords.accuracy !== undefined) merged.accuracy = coords.accuracy;
+                if (coords.heading !== undefined) merged.heading = coords.heading;
+            }
+
+            const batteryObj = location.battery && typeof location.battery === "object" ? location.battery : null;
+            if (batteryObj && batteryObj.level !== undefined) {
+                merged.battery = batteryObj.level;
+            }
+
+            const activityObj = location.activity && typeof location.activity === "object" ? location.activity : null;
+            if (activityObj && activityObj.type !== undefined) {
+                merged.activity = activityObj.type;
+            }
         }
 
         return merged;
