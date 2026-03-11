@@ -131,10 +131,6 @@
 		const coords = `${box.lat.toFixed(6)}, ${box.lng.toFixed(6)}`;
 		const lastSeenText = box.lastSeen ? new Date(box.lastSeen).toLocaleString() : "-";
 		const battery = clampInt(box.batteryPercent ?? 0, 0, 150);
-		const powerbankMah = clampInt(box.powerbankMah ?? 0, 0, 1000000);
-		const loadW = clampNumber(box.loadW ?? DEFAULT_LOAD_W, 0.1, 1000);
-		const fullHours = estimateRuntimeHours(powerbankMah, loadW);
-		const remainingHours = fullHours * (battery / 100);
 		const statusLabel =
 			status === "online" ? "ออนไลน์" : status === "low" ? "แบตต่ำ" : "ออฟไลน์";
 		const iconSrc = batteryIconSrc(battery);
@@ -147,12 +143,11 @@
 				<div style="margin-top:6px; font-size: 12px; opacity: 0.85">พิกัด: <span style="font-family: ui-monospace, monospace">${coords}</span></div>
 				<div style="margin-top:6px; font-size: 12px; opacity: 0.85; display:flex; align-items:center; gap:8px;">
 					<img src="${iconSrc}" alt="battery" width="16" height="16" />
-					<span>แบตเตอรี่: <b>${battery}%</b> • พาวเวอร์แบงก์: ${powerbankMah} mAh • ใช้ไฟ: ${loadW} W</span>
+					<span>แบตเตอรี่: <b>${battery}%</b></span>
 				</div>
 				<div style="margin-top:6px; font-size: 12px; opacity: 0.85; display:flex; align-items:center; gap:8px;">
 					<span>จำนวนเชื่อมต่อ WiFi: <b>${box.wifiCount || 0}</b></span>
 				</div>
-				<div style="margin-top:6px; font-size: 12px; opacity: 0.85">คาดว่าเหลือเวลา ~ <b>${remainingHours.toFixed(1)} ชม.</b> (เต็ม ~${fullHours.toFixed(1)} ชม.)</div>
 				<div style="margin-top:6px; font-size: 12px; opacity: 0.85">Last seen: ${escapeHtml(lastSeenText)}</div>
 				${note ? `<div style="margin-top: 8px; font-size: 12px; opacity: 0.9">${note}</div>` : ""}
 			</div>
