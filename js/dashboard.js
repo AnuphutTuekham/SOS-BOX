@@ -54,7 +54,8 @@
 			const batteryObj = location.battery && typeof location.battery === "object" ? location.battery : null;
 			if (batteryObj) {
 				if (batteryObj.level !== undefined) merged.battery = batteryObj.level;
-				if (batteryObj.isCharging !== undefined) merged.isCharging = batteryObj.isCharging;
+				const charging = batteryObj.isCharging ?? batteryObj.is_charging;
+				if (charging !== undefined) merged.isCharging = charging;
 			}
 
 			const activityObj = location.activity && typeof location.activity === "object" ? location.activity : null;
@@ -133,8 +134,16 @@
 
 			// Latest readings from raw-input table
 			try {
-				const resp = await fetch(apiUrl("/api/raw-input?limit=10"));
-				const raw = await resp.json();
+				const resp = await fetch(apiUrl("/api/raw-input?limit=100"));
+				const rawAll = await resp.json();
+				// Keep only the latest entry per device_id
+				const seen = new Set();
+				const raw = rawAll.filter((r) => {
+					const key = r.device_id || r.id;
+					if (seen.has(key)) return false;
+					seen.add(key);
+					return true;
+				});
 				if (readingsBody) {
 					readingsBody.innerHTML = raw
 						.map((r) => {
