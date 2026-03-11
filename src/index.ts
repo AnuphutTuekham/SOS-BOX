@@ -355,15 +355,16 @@ export default {
 
 					if (deviceId) {
 						const existing = await env.sos_boxbd
-							.prepare("SELECT id FROM sosbox WHERE device_id = ? LIMIT 1")
+							.prepare("SELECT id, name FROM sosbox WHERE device_id = ? LIMIT 1")
 							.bind(deviceId)
 							.first();
 						if (existing?.id) {
+							const nextName = String(existing.name ?? "").trim() || name;
 							await env.sos_boxbd
 								.prepare(
 									"UPDATE sosbox SET name=?, lat=?, lon=?, status=?, batt=?, created_at=? WHERE id=?"
 								)
-								.bind(name, lat, lon, "online", batt, createdAtIso, existing.id)
+								.bind(nextName, lat, lon, "online", batt, createdAtIso, existing.id)
 								.run();
 							return json({ ok: true, upserted: 1 });
 						}
@@ -602,15 +603,16 @@ export default {
 					const createdAtIso = new Date(b.lastSeen || Date.now()).toISOString();
 					if (b.deviceId) {
 						const existing = await env.sos_boxbd
-							.prepare("SELECT id FROM sosbox WHERE device_id = ? LIMIT 1")
+							.prepare("SELECT id, name FROM sosbox WHERE device_id = ? LIMIT 1")
 							.bind(b.deviceId)
 							.first();
 						if (existing?.id) {
+							const nextName = String(existing.name ?? "").trim() || b.name;
 							await env.sos_boxbd
 								.prepare(
 								"UPDATE sosbox SET name=?, lat=?, lon=?, status=?, batt=?, wifi_count=?, created_at=? WHERE id=?"
 							)
-							.bind(b.name, b.lat, b.lon, b.status, b.batt, b.wifi_count ?? 0, createdAtIso, existing.id)
+							.bind(nextName, b.lat, b.lon, b.status, b.batt, b.wifi_count ?? 0, createdAtIso, existing.id)
 							.run();
 						continue;
 						}

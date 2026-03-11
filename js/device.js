@@ -1,7 +1,7 @@
 (() => {
     "use strict";
 
-    const { $, apiGetBoxes, apiDeleteBox, computeStatus, clampInt, showToast } = window.SOSBoxUtils;
+    const { $, apiGetBoxes, apiUpsertBox, apiDeleteBox, computeStatus, clampInt, showToast } = window.SOSBoxUtils;
 
     let boxes = [];
 
@@ -96,6 +96,31 @@
         }
     }
 
+    async function renameDevice(id) {
+        const box = boxes.find((item) => String(item.id) === String(id));
+        if (!box) {
+            showToast("Device not found", 2400);
+            return;
+        }
+
+        const nextName = window.prompt("เปลี่ยนชื่ออุปกรณ์", String(box.name || ""));
+        if (nextName === null) return;
+
+        const trimmedName = String(nextName).trim();
+        if (!trimmedName) {
+            showToast("กรุณาใส่ชื่ออุปกรณ์", 2400);
+            return;
+        }
+
+        try {
+            await apiUpsertBox({ ...box, name: trimmedName });
+            showToast("เปลี่ยนชื่ออุปกรณ์แล้ว");
+            await refresh();
+        } catch (e) {
+            showToast(`Rename failed: ${e?.message || e}`, 3600);
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
         $("btnAddDevice")?.addEventListener("click", () => {
             window.location.href = "edit.html";
@@ -115,10 +140,7 @@
             if (!action || !id) return;
 
             if (action === "edit") {
-                const u = new URL("edit.html", window.location.href);
-                u.searchParams.set("id", id);
-                u.searchParams.set("return", "device.html");
-                window.location.href = u.toString();
+                await renameDevice(id);
                 return;
             }
 
