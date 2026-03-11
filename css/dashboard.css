@@ -410,6 +410,59 @@ td {
     align-self: flex-start;
 }
 
-.critical-card-empty {
+.critical-subtitle {
+    font-size: 0.75rem;
     color: var(--text-muted);
+    font-weight: normal;
+}
+
+.critical-list {
+    width: 100%;
+}
+
+.critical-device-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 4px;
+    border-bottom: 1px solid #2d334a;
+    text-align: left;
+    width: 100%;
+}
+
+.critical-device-row:last-child {
+    border-bottom: none;
+}
+
+.critical-device-name {
+    font-size: 0.9rem;
+    color: var(--text-main);
+}
+
+.battery-pill {
+    display: inline-block;
+    min-width: 52px;
+    text-align: center;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    border: 1px solid;
+}
+
+.battery-high {
+    color: #4ade80;
+    border-color: #166534;
+    background: rgba(22, 101, 52, 0.2);
+}
+
+.battery-mid {
+    color: #facc15;
+    border-color: #854d0e;
+    background: rgba(133, 77, 14, 0.2);
+}
+
+.battery-low {
+    color: #f87171;
+    border-color: #991b1b;
+    background: rgba(153, 27, 27, 0.2);
 }

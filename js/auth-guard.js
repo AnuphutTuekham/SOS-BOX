@@ -1,6 +1,10 @@
 (() => {
     "use strict";
 
+    const host = String(window.location.hostname || "").toLowerCase();
+    const isLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
+    if (isLocal) return;
+
     const restrictedPages = new Set([
         "dashboard.html",
         "device.html",

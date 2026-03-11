@@ -42,11 +42,11 @@
                 <p id="onlineDevices">0</p>
             </div>
             <div class="stat-card orange">
-                <h4>Warnings</h4>
+                <h4>Less than half battery</h4>
                 <p id="warningCount">0</p>
             </div>
             <div class="stat-card red">
-                <h4>Danger Alerts</h4>
+                <h4>Low battery</h4>
                 <p id="dangerCount">0</p>
             </div>
         </div>
@@ -73,8 +73,8 @@
             </div>
 
             <div class="critical-card flex-column flex-center text-center">
-                <h4 class="m-0">Critical Devices</h4>
-                <div class="mt-50">
+                <h4 class="m-0">Critical Devices <small class="critical-subtitle">(battery &lt; 50%)</small></h4>
+                <div class="mt-50 critical-list" id="criticalList">
                     <p class="critical-card-empty">All systems clear ✨</p>
                 </div>
             </div>

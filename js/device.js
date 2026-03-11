@@ -28,8 +28,14 @@
         const offlineAfterMin = 30;
         const total = list.length;
         const online = list.filter((b) => computeStatus(b, offlineAfterMin) === "online").length;
-        const warning = list.filter((b) => computeStatus(b, offlineAfterMin) === "low").length;
-        const danger = list.filter((b) => computeStatus(b, offlineAfterMin) === "offline").length;
+        const warning = list.filter((b) => {
+            const battery = Number(b.batteryPercent ?? 0);
+            return Number.isFinite(battery) && battery < 50 && battery >= 20;
+        }).length;
+        const danger = list.filter((b) => {
+            const battery = Number(b.batteryPercent ?? 0);
+            return Number.isFinite(battery) && battery < 20;
+        }).length;
 
         if ($("totalDevices")) $("totalDevices").textContent = String(total);
         if ($("onlineDevices")) $("onlineDevices").textContent = String(online);
