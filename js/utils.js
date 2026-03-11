@@ -84,11 +84,6 @@
 		if (!r.ok) throw new Error(`POST /api/boxes/upsert failed: ${r.status}`);
 	}
 
-	async function apiDeleteAllBoxes() {
-		const r = await fetch(apiUrl("/api/boxes"), { method: "DELETE" });
-		if (!r.ok) throw new Error(`DELETE /api/boxes failed: ${r.status}`);
-	}
-
 	async function apiDeleteBox(id) {
 		const r = await fetch(apiUrl(`/api/boxes/${encodeURIComponent(String(id))}`), {
 			method: "DELETE",
@@ -104,13 +99,6 @@
 		if (p <= 50) return "pic/orange_battery.png";
 		if (p <= 75) return "pic/Yellow_battery.png";
 		return "pic/green_battery.png";
-	}
-
-	function estimateRuntimeHours(powerbankMah, loadW) {
-		// Rough estimate: Wh = mAh * 3.7V / 1000; assume ~85% conversion efficiency
-		const wh = (powerbankMah * 3.7) / 1000;
-		const usableWh = wh * 0.85;
-		return usableWh / Math.max(0.1, loadW);
 	}
 
 	// Status computation
@@ -180,14 +168,12 @@
 		apiUrl,
 		apiGetBoxes,
 		apiUpsertBox,
-		apiDeleteAllBoxes,
 		apiDeleteBox,
 		// Utilities
 		clampInt,
 		clampNumber,
 		normalizeBoxes,
 		batteryIconSrc,
-		estimateRuntimeHours,
 		computeStatus,
 		escapeHtml,
 		formatLatLng,

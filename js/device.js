@@ -1,7 +1,7 @@
 (() => {
     "use strict";
 
-    const { $, apiGetBoxes, apiUpsertBox, apiDeleteBox, computeStatus, clampInt, showToast } = window.SOSBoxUtils;
+    const { $, apiGetBoxes, apiDeleteBox, computeStatus, clampInt, showToast } = window.SOSBoxUtils;
 
     let boxes = [];
 
@@ -65,7 +65,6 @@
                         <td>${lastUpdate}</td>
                         <td><span class="battery-pill ${batteryClass(battery)}">${battery}%</span></td>
                         <td class="action-cell">
-                            <button class="btn-table btn-edit" type="button" data-action="edit" data-id="${box.id}">Edit</button>
                             <button class="btn-table danger" type="button" data-action="delete" data-id="${box.id}">Delete</button>
                         </td>
                     </tr>
@@ -96,37 +95,8 @@
         }
     }
 
-    async function renameDevice(id) {
-        const box = boxes.find((item) => String(item.id) === String(id));
-        if (!box) {
-            showToast("Device not found", 2400);
-            return;
-        }
-
-        const nextName = window.prompt("เปลี่ยนชื่ออุปกรณ์", String(box.name || ""));
-        if (nextName === null) return;
-
-        const trimmedName = String(nextName).trim();
-        if (!trimmedName) {
-            showToast("กรุณาใส่ชื่ออุปกรณ์", 2400);
-            return;
-        }
-
-        try {
-            await apiUpsertBox({ ...box, name: trimmedName });
-            showToast("เปลี่ยนชื่ออุปกรณ์แล้ว");
-            await refresh();
-        } catch (e) {
-            showToast(`Rename failed: ${e?.message || e}`, 3600);
-        }
-    }
-
     document.addEventListener("DOMContentLoaded", () => {
-        $("btnAddDevice")?.addEventListener("click", () => {
-            window.location.href = "edit.html";
-        });
-
-        $("searchDevice")?.addEventListener("input", () => {
+        $('searchDevice')?.addEventListener("input", () => {
             const filtered = getFiltered();
             updateSummary(filtered);
             renderTable(filtered);
@@ -138,11 +108,6 @@
             const action = target.getAttribute("data-action");
             const id = target.getAttribute("data-id");
             if (!action || !id) return;
-
-            if (action === "edit") {
-                await renameDevice(id);
-                return;
-            }
 
             if (action === "delete") {
                 if (!window.confirm("Delete this device?")) return;

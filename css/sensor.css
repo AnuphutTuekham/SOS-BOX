@@ -51,11 +51,6 @@
     background: rgba(153, 27, 27, 0.2);
 }
 
-.status-line {
-    color: #4ade80;
-    font-size: 0.85rem;
-}
-
 .pagination-row {
     margin-top: 14px;
     color: var(--text-muted);

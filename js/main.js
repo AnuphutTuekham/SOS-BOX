@@ -12,12 +12,10 @@
 		computeStatus,
 		batteryIconSrc,
 		escapeHtml,
-		estimateRuntimeHours,
 		formatLatLng,
 		copyText,
 		showToast,
 		clampInt,
-		clampNumber,
 		DEFAULT_LOAD_W,
 	} = window.SOSBoxUtils;
 
