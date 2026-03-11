@@ -9,9 +9,6 @@
 		$,
 		apiUrl,
 		apiGetBoxes,
-		apiUpsertBox,
-		apiDeleteAllBoxes,
-		apiDeleteBox,
 		computeStatus,
 		batteryIconSrc,
 		escapeHtml,
@@ -293,27 +290,11 @@
 					if (filter !== "all" && status !== filter) continue;
 
 					const leafletMarker = L.marker([box.lat, box.lng], {
-						draggable: true,
+						draggable: false,
 						icon: markerIcon(status),
 					});
 					leafletMarker.bindPopup(boxPopupHtml(box, status));
 					leafletMarker.on("click", () => selectBox(box.id, false));
-					leafletMarker.on("dragend", async () => {
-						const p = leafletMarker.getLatLng();
-						box.lat = p.lat;
-						box.lng = p.lng;
-						try {
-							await apiUpsertBox({
-								id: box.id,
-								lat: box.lat,
-								lng: box.lng,
-							});
-							await refreshBoxes({ silent: true });
-							showToast("ย้ายตำแหน่ง SOS BOX แล้ว");
-						} catch (e) {
-							showToast(`บันทึกตำแหน่งไม่สำเร็จ: ${e?.message || e}`, 3600);
-						}
-					});
 
 					leafletMarker.addTo(markerLayer);
 					markersById.set(box.id, leafletMarker);
@@ -415,20 +396,6 @@
 					btnGo.textContent = "ไป";
 					btnGo.onclick = () => map.setView([b.lat, b.lng], Math.max(map.getZoom(), 16));
 
-					const btnEdit = document.createElement("button");
-					btnEdit.className = "tiny";
-					btnEdit.type = "button";
-					btnEdit.textContent = "แก้ไข";
-					btnEdit.onclick = () => {
-						const c = map.getCenter();
-						const z = map.getZoom();
-						window.location.href = buildEditorUrl({
-							id: b.id,
-							ll: `${c.lat.toFixed(6)},${c.lng.toFixed(6)}`,
-							z: String(z),
-						});
-					};
-
 					const btnCopy = document.createElement("button");
 					btnCopy.className = "tiny";
 					btnCopy.type = "button";
@@ -438,25 +405,8 @@
 						showToast("คัดลอกพิกัดแล้ว");
 					};
 
-					const btnDel = document.createElement("button");
-					btnDel.className = "tiny";
-					btnDel.type = "button";
-					btnDel.textContent = "ลบ";
-					btnDel.onclick = async () => {
-						if (!confirm("ลบ SOS BOX รายการนี้?")) return;
-						try {
-							await apiDeleteBox(b.id);
-							await refreshBoxes({ silent: true });
-							showToast("ลบแล้ว");
-						} catch (e) {
-							showToast(`ลบไม่สำเร็จ: ${e?.message || e}`, 3600);
-						}
-					};
-
 					right.appendChild(btnGo);
-					right.appendChild(btnEdit);
 					right.appendChild(btnCopy);
-					right.appendChild(btnDel);
 
 					item.appendChild(left);
 					item.appendChild(right);
@@ -469,10 +419,7 @@
 			map.on("click", (e) => {
 				const lat = e.latlng.lat;
 				const lng = e.latlng.lng;
-				showToast(
-					`พิกัด: ${lat.toFixed(6)}, ${lng.toFixed(6)} (กด "เพิ่ม/แก้ไข SOS BOX" เพื่อเพิ่มรายการ)`,
-					3200
-				);
+				showToast(`พิกัด: ${lat.toFixed(6)}, ${lng.toFixed(6)}`, 3200);
 			});
 
 			on("btnOpenEditor", "click", () => {
@@ -486,19 +433,6 @@
 
 			on("btnOpenDashboard", "click", () => {
 				window.location.href = "dashboard.html";
-			});
-
-			on("btnClearAll", "click", () => {
-				if (!confirm("ลบ SOS BOX ทั้งหมด?")) return;
-				void (async () => {
-					try {
-						await apiDeleteAllBoxes();
-						await refreshBoxes({ silent: true });
-						showToast("ลบทั้งหมดแล้ว");
-					} catch (e) {
-						showToast(`ลบทั้งหมดไม่สำเร็จ: ${e?.message || e}`, 3600);
-					}
-				})();
 			});
 
 			on("btnLocate", "click", () => {
