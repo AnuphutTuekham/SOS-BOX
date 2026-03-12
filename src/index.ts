@@ -13,7 +13,7 @@ function json(data: unknown, init: ResponseInit = {}) {
 	headers.set("content-type", "application/json; charset=utf-8");
 	headers.set("cache-control", "no-store");
 	headers.set("access-control-allow-origin", "*");
-	headers.set("access-control-allow-methods", "GET,POST,DELETE,PUT,OPTIONS");
+	headers.set("access-control-allow-methods", "GET,POST,DELETE,OPTIONS");
 	headers.set("access-control-allow-headers", "content-type");
 	return new Response(JSON.stringify(data), { ...init, headers });
 }
@@ -390,7 +390,7 @@ export default {
 				status: 204,
 				headers: {
 					"access-control-allow-origin": "*",
-					"access-control-allow-methods": "GET,POST,DELETE,PUT,OPTIONS",
+					"access-control-allow-methods": "GET,POST,DELETE,OPTIONS",
 					"access-control-allow-headers": "content-type",
 					"cache-control": "no-store",
 				},
@@ -540,33 +540,6 @@ export default {
 			}
 		}
 
-		const boxNameMatch = url.pathname.match(/^\/api\/boxes\/(\d+)\/name$/);
-		if (boxNameMatch && (request.method === "POST" || request.method === "PUT")) {
-			try {
-				await ensureSchema(env.sos_boxbd);
-				const id = clampInt(boxNameMatch[1], 0, 2_000_000_000);
-				const body = await request.json().catch(() => null);
-				const rawName = String(body?.name ?? "").trim();
-				if (!rawName) {
-					return json({ error: "name is required" }, { status: 400 });
-				}
-
-				const name = rawName.slice(0, 120);
-				const existing = await env.sos_boxbd
-					.prepare("SELECT id FROM sosbox WHERE id = ? LIMIT 1")
-					.bind(id)
-					.first();
-				if (!existing?.id) {
-					return json({ error: "device not found" }, { status: 404 });
-				}
-
-				await env.sos_boxbd.prepare("UPDATE sosbox SET name = ? WHERE id = ?").bind(name, id).run();
-				return json({ ok: true, id: String(id), name });
-			} catch (e: any) {
-				return json({ error: e?.message || String(e) }, { status: 500 });
-			}
-		}
-
 		if (url.pathname === "/api/boxes/upsert" && request.method === "POST") {
 			try {
 				await ensureSchema(env.sos_boxbd);
@@ -586,59 +559,18 @@ export default {
 					const idNum = Number(b.id);
 					const createdAtIso = new Date(b.lastSeen || Date.now()).toISOString();
 					if (Number.isFinite(idNum) && idNum > 0) {
-						const existing = await env.sos_boxbd
-							.prepare("SELECT id, name FROM sosbox WHERE id = ? LIMIT 1")
-							.bind(idNum)
-							.first();
-						const nextName = String(existing?.name ?? "").trim() || b.name;
 						await env.sos_boxbd
 							.prepare(
 							"UPDATE sosbox SET name=?, lat=?, lon=?, status=?, batt=?, wifi_count=?, created_at=? WHERE id=?"
 						)
-						.bind(nextName, b.lat, b.lon, b.status, b.batt, b.wifi_count ?? 0, createdAtIso, idNum)
+						.bind(b.name, b.lat, b.lon, b.status, b.batt, b.wifi_count ?? 0, createdAtIso, idNum)
 						.run();
 					} else {
-						const existingByDevice = b.id
-							? await env.sos_boxbd
-									.prepare("SELECT id, name FROM sosbox WHERE device_id = ? LIMIT 1")
-									.bind(String(b.id))
-									.first()
-							: null;
-						if (existingByDevice?.id) {
-							const nextName = String(existingByDevice.name ?? "").trim() || b.name;
-							await env.sos_boxbd
-								.prepare(
-									"UPDATE sosbox SET name=?, lat=?, lon=?, status=?, batt=?, wifi_count=?, created_at=?, device_id=? WHERE id=?"
-								)
-								.bind(
-									nextName,
-									b.lat,
-									b.lon,
-									b.status,
-									b.batt,
-									b.wifi_count ?? 0,
-									createdAtIso,
-									String(b.id),
-									existingByDevice.id
-								)
-								.run();
-							continue;
-						}
-
 						await env.sos_boxbd
 							.prepare(
-								"INSERT INTO sosbox (name, lat, lon, status, batt, wifi_count, created_at, device_id) VALUES (?,?,?,?,?,?,?,?)"
+								"INSERT INTO sosbox (name, lat, lon, status, batt, wifi_count, created_at) VALUES (?,?,?,?,?,?,?)"
 							)
-							.bind(
-								b.name,
-								b.lat,
-								b.lon,
-								b.status,
-								b.batt,
-								b.wifi_count ?? 0,
-								createdAtIso,
-								String(b.id || "")
-							)
+							.bind(b.name, b.lat, b.lon, b.status, b.batt, b.wifi_count ?? 0, createdAtIso)
 							.run();
 					}
 				}
