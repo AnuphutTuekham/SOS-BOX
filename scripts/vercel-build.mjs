@@ -17,7 +17,8 @@ const toCopy = [
 	"favicon.ico",
 	"sensor.html",
 	"register.html",
-	"device.html"
+	"device.html",
+	"planing.html"
 
 ];
 
