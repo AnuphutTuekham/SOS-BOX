@@ -91,6 +91,16 @@
 		if (!r.ok) throw new Error(`DELETE /api/boxes/:id failed: ${r.status}`);
 	}
 
+	async function apiUpdateBoxName(id, name) {
+		const r = await fetch(apiUrl(`/api/boxes/${encodeURIComponent(String(id))}/name`), {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify({ name: String(name || "") }),
+		});
+		if (!r.ok) throw new Error(`POST /api/boxes/:id/name failed: ${r.status}`);
+		return r.json().catch(() => null);
+	}
+
 	// Battery utilities
 	function batteryIconSrc(batteryPercent) {
 		const p = clampInt(batteryPercent ?? 0, 0, 150);
@@ -169,6 +179,7 @@
 		apiGetBoxes,
 		apiUpsertBox,
 		apiDeleteBox,
+		apiUpdateBoxName,
 		// Utilities
 		clampInt,
 		clampNumber,
