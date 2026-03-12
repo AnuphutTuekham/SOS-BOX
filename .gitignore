@@ -23,6 +23,7 @@ coverage/
 /dist
 /build
 /out
+public/
 
 # Cache
 .cache/
@@ -54,3 +55,6 @@ desktop.ini
 # package-lock.json
 # yarn.lock
 # pnpm-lock.yaml
+
+# SOS BOX runtime data (real device feed)
+data/boxes.json
