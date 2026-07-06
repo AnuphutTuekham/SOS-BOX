@@ -1,0 +1,136 @@
+.planning-card {
+	display: grid;
+	gap: 8px;
+}
+
+.plan-input {
+	width: 100%;
+	padding: 10px 12px;
+	border-radius: 10px;
+	border: 1px solid var(--border);
+	background: rgba(10, 14, 30, 0.55);
+	color: var(--text);
+	outline: none;
+}
+
+.plan-input:focus {
+	border-color: rgba(122, 162, 255, 0.6);
+	box-shadow: 0 0 0 2px rgba(122, 162, 255, 0.18);
+}
+
+.plan-status {
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 9px;
+	border-radius: 999px;
+	font-size: 11px;
+	border: 1px solid var(--border);
+	text-transform: uppercase;
+	letter-spacing: 0.2px;
+}
+
+.plan-status.success {
+	color: #9cf9e2;
+	background: rgba(86, 242, 199, 0.12);
+	border-color: rgba(86, 242, 199, 0.35);
+}
+
+.plan-status.waiting {
+	color: #ffd899;
+	background: rgba(255, 203, 92, 0.12);
+	border-color: rgba(255, 203, 92, 0.35);
+}
+
+.plan-meta {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	margin-top: 6px;
+}
+
+.planning-actions {
+	display: flex;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.box-source {
+	display: inline-flex;
+	align-items: center;
+	padding: 3px 8px;
+	border-radius: 999px;
+	font-size: 10.5px;
+	border: 1px solid var(--border);
+	text-transform: uppercase;
+	letter-spacing: 0.2px;
+}
+
+.box-source.api {
+	background: rgba(122, 162, 255, 0.14);
+	border-color: rgba(122, 162, 255, 0.35);
+	color: #c8d9ff;
+}
+
+.box-source.mock {
+	background: rgba(255, 203, 92, 0.14);
+	border-color: rgba(255, 203, 92, 0.35);
+	color: #ffe3a3;
+}
+
+/* ── mode toggle ─────────────────────────────────────────────── */
+.plan-mode-toggle {
+	display: flex;
+	gap: 6px;
+}
+
+.mode-btn {
+	flex: 1;
+	padding: 8px 6px;
+	font-size: 12px;
+	border-radius: 10px;
+	border: 1px solid var(--border);
+	background: rgba(255, 255, 255, 0.04);
+	color: rgba(255, 255, 255, 0.55);
+	cursor: pointer;
+	transition: all 0.15s;
+}
+
+.mode-btn:hover {
+	background: rgba(122, 162, 255, 0.1);
+	color: var(--text);
+}
+
+.mode-btn.active {
+	background: rgba(122, 162, 255, 0.18);
+	border-color: rgba(122, 162, 255, 0.5);
+	color: var(--text);
+}
+
+/* ── map custom markers ──────────────────────────────────────── */
+.mock-box-marker {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	border-radius: 8px;
+	background: rgba(255, 203, 92, 0.18);
+	border: 1.5px solid rgba(255, 203, 92, 0.55);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+.plan-pin-marker {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.plan-pin-marker.success svg path:first-child {
+	fill: #56f2c7;
+}
+
+.plan-pin-marker.waiting svg path:first-child {
+	fill: #ffcb5c;
+}

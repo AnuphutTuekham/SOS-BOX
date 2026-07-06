@@ -1,0 +1,60 @@
+.table-card {
+    margin-top: 20px;
+}
+
+.sensor-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+}
+
+.sensor-table th {
+    text-align: left;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 12px 10px;
+    border-bottom: 1px solid #2d334a;
+}
+
+.sensor-table td {
+    padding: 12px 10px;
+    border-bottom: 1px solid #252c45;
+    font-size: 0.9rem;
+}
+
+.battery-pill {
+    display: inline-block;
+    min-width: 70px;
+    text-align: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    border: 1px solid;
+}
+
+.battery-high {
+    color: #4ade80;
+    border-color: #166534;
+    background: rgba(22, 101, 52, 0.2);
+}
+
+.battery-mid {
+    color: #facc15;
+    border-color: #854d0e;
+    background: rgba(133, 77, 14, 0.2);
+}
+
+.battery-low {
+    color: #f87171;
+    border-color: #991b1b;
+    background: rgba(153, 27, 27, 0.2);
+}
+
+.pagination-row {
+    margin-top: 14px;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    display: flex;
+    justify-content: space-between;
+}

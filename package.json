@@ -4,10 +4,14 @@
 	"version": "0.0.0",
 	"type": "module",
 	"scripts": {
-		"dev": "http-server -c-1 -p 5173 -o /main.html .",
-		"start": "http-server -c-1 -p 5173 -o /main.html ."
+		"build": "node scripts/vercel-build.mjs",
+		"vercel-build": "npm run build",
+		"test": "node scripts/verify-student-ids.mjs",
+		"dev": "node dev-server.mjs",
+		"start": "node dev-server.mjs",
+		"d1:migrate": "wrangler d1 migrations apply sos_boxbd"
 	},
 	"devDependencies": {
-		"http-server": "^14.1.1"
+		"@cloudflare/workers-types": "^4.20260203.0"
 	}
 }
